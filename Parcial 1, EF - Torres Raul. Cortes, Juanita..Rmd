@@ -9,59 +9,62 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca)  
 ```
 \begin{itemize}
-\item Usando los datos diarios para el índice S\&P500 de los ultimos 5 años (los cuales usted debe buscar y descargar), analice los hechos estilizados propios de los retornos para observaciones diarias.
-\item Compare los resultados anteriores cuando las observaciones son semanales y mensuales. (Recomendación presente los resultados en tablas y gráficas en forma de paneles (matrices de gráficas) de tal manera que las comparaciones sean más fáciles de leer)
+    \item Obtenga datos diarios y mensuales de cualquier índice accionario de bolsa para un periodo no inferior a 20 años. Con esta información realice los siguientes análisis:
+    \begin{enumerate}
+    \item Discuta qué mide el índice accionario elegido y realice un análisis estadístico del mismo y de sus retornos.
+        
+El índice accionario \textbf{FTSE100} es un índice de capitalización ponderado de las 100 acciones más capitalizadas que se transan en la \textit{London Stock Exchange}. Este índice sirve como referencia para medir en promedio el rendimiento de las empresas británicas más importantes y está constituido por HSBC, Standard Chatered, Unilever, Glencore, entre otras.
+
+\item ¿Es el mercado accionario elegido eficiente? Use diferentes horizontes de tiempo y pruebe la hipótesis considerando sus diferentes formas. Discuta los resultados.
+        
+  \end{enumerate}
 \end{itemize}
 
 En primer lugar, obtenemos los datos de precios de cierre de los últimos 5 años S\&P500 Index de Yahoo Finance según las frecuencias requeridas, es decir, diaria, mensual y semanal.
 
 ```{r , message=FALSE, warning=FALSE, results='hide'}
-getSymbols('^GSPC',from = "2016-03-22", to = "2021-03-22", periodicity = "daily")
-SP_d_p <- Cl(GSPC)
-getSymbols('^GSPC',src='yahoo', from = "2016-03-22", to = "2021-03-22", periodicity = "weekly")
-SP_w_p <- Cl(GSPC)
-getSymbols('^GSPC',src='yahoo', from = "2016-03-22", to = "2021-03-22", periodicity = "monthly")
-SP_m_p <- Cl(GSPC)
+getSymbols('^FTSE',from = "1985-01-01", to = "2021-04-29", periodicity = "daily")
+UK_d_p <- Cl(FTSE)
+getSymbols('^FTSE', from = "1985-01-01", to = "2021-04-29", periodicity = "monthly")
+UK_m_p <- Cl(FTSE)
 ```
 
-Luego, procedemos a calcular los retornos simples y continuos de los precios para cada serie.
+Luego, procedemos a calcular los retornos continuos de los precios para cada serie.
 
 ```{r}
-d <- as.data.frame(SP_d_p)
-n = nrow(SP_d_p)
-fecha=seq(as.Date("2016-03-23"), as.Date("2021-03-22"), by = "day")
-SP_d_rs = (d[2:n,1] - d[1:(n - 1),1]) / d[1:(n - 1),1]
-SP_d_rs<-zoo(SP_d_rs, fecha)
-SP_d_rc = log(d[2:n,1]) - log(d[1:(n - 1),1])
-SP_d_rc<-zoo(SP_d_rc, fecha)
+diario <- as.data.frame(UK_d_p)
+n1 = nrow(UK_d_p)
+dias=seq(as.Date("1985-01-01"), as.Date("2021-04-29"), by = "day")
+UK_d_rc = log(diario[2:n1,1]) - log(diario[1:(n1 - 1),1])
+UK_d_rc<-zoo(UK_d_rc, dias)
 ```
 
 ```{r}
-d1 <- as.data.frame(SP_w_p)
-n = nrow(SP_w_p)
-fecha1=seq(as.Date("2016-03-28"), as.Date("2021-03-22"), by = "week")
-SP_w_rs = (d1[2:n, 1] - d1[1:(n - 1), 1]) / d1[1:(n - 1), 1]
-SP_w_rs<-zoo(SP_w_rs, fecha1)
-SP_w_rc = log(d1[2:n,1]) - log(d1[1:(n - 1),1])
-SP_w_rc<-zoo(SP_w_rc, fecha1)
+mensual <- as.data.frame(UK_m_p)
+n2 = nrow(UK_m_p)
+meses=seq(as.Date("1985-01-01"), as.Date("2021-04-29"), by = "month")
+UK_m_rc = log(mensual[2:n2,1]) - log(mensual[1:(n2 - 1),1])
+UK_m_rc<-zoo(UK_m_rc, meses)
 ```
 
-```{r}
-d2 <- as.data.frame(SP_m_p)
-n = nrow(SP_m_p)
-fecha2=seq(as.Date("2016-05-01"), as.Date("2021-03-22"), by = "month")
-SP_m_rs = (d2[2:n, 1] - d2[1:(n - 1), 1]) / d2[1:(n - 1), 1]
-SP_m_rs<-zoo(SP_m_rs, fecha2)
-SP_m_rc = log(d2[2:n,1]) - log(d2[1:(n - 1),1])
-SP_m_rc<-zoo(SP_m_rc, fecha2)
-```
-
-Al graficar los dos tipos deretornos y compararlos con los precios observamos que a diferencia de los precios, los retornos fluctúan alrededor de una media de cero, sin tener una volatilidad constante.
+Al graficar los dos tipos de retornos y compararlos con los precios observamos que a diferencia de los precios, los retornos fluctúan alrededor de una media de cero, sin tener una volatilidad constante.
 
 ```{r echo=FALSE, fig.pos='h', out.height='5in'}
 grid.arrange(
-autoplot(SP_d_p) + ggtitle("Precios diarios de S&P500 Index"),
-autoplot(SP_d_rs) + ggtitle("Retornos simples diarios de S&P500 Index") + ylab('')+ xlab(''),
-autoplot(SP_d_rc) + ggtitle("Log-retornos diarios de S&P500 Index") + ylab('')+ xlab(''),
-nrow= 3)
+autoplot(UK_d_p) + ggtitle("Precios diarios de FTSE100 Index"),
+autoplot(UK_d_rc) + ggtitle("Log-retornos diarios de FTSE100 Index") + ylab('')+ xlab(''),
+nrow= 2)
 ```
+
+```{r echo=FALSE, fig.pos='h', out.height='5in'}
+grid.arrange(
+autoplot(UK_m_p) + ggtitle("Precios mensuales de FTSE100 Index"),
+autoplot(UK_m_rc) + ggtitle("Log-retornos mensuales de FTSE100 Index") + ylab('')+ xlab(''),
+nrow= 2)
+```
+
+
+
+
+
+
