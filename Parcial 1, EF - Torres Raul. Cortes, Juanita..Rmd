@@ -1,28 +1,67 @@
 ---
-title: "Parcial 1, EF - Torres, Raul. Cortes, Juanita."
+title: "Parcial 1 - Econometría Financiera"
+subtitle: "Raúl Esteban Torres Jiménez & Juanita Cortés Arroyo"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca)  
+```
+\begin{itemize}
+\item Usando los datos diarios para el índice S\&P500 de los ultimos 5 años (los cuales usted debe buscar y descargar), analice los hechos estilizados propios de los retornos para observaciones diarias.
+\item Compare los resultados anteriores cuando las observaciones son semanales y mensuales. (Recomendación presente los resultados en tablas y gráficas en forma de paneles (matrices de gráficas) de tal manera que las comparaciones sean más fáciles de leer)
+\end{itemize}
+
+En primer lugar, obtenemos los datos de precios de cierre de los últimos 5 años S\&P500 Index de Yahoo Finance según las frecuencias requeridas, es decir, diaria, mensual y semanal.
+
+```{r , message=FALSE, warning=FALSE, results='hide'}
+getSymbols('^GSPC',from = "2016-03-22", to = "2021-03-22", periodicity = "daily")
+SP_d_p <- Cl(GSPC)
+getSymbols('^GSPC',src='yahoo', from = "2016-03-22", to = "2021-03-22", periodicity = "weekly")
+SP_w_p <- Cl(GSPC)
+getSymbols('^GSPC',src='yahoo', from = "2016-03-22", to = "2021-03-22", periodicity = "monthly")
+SP_m_p <- Cl(GSPC)
 ```
 
-## R Markdown
+Luego, procedemos a calcular los retornos simples y continuos de los precios para cada serie.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+d <- as.data.frame(SP_d_p)
+n = nrow(SP_d_p)
+fecha=seq(as.Date("2016-03-23"), as.Date("2021-03-22"), by = "day")
+SP_d_rs = (d[2:n,1] - d[1:(n - 1),1]) / d[1:(n - 1),1]
+SP_d_rs<-zoo(SP_d_rs, fecha)
+SP_d_rc = log(d[2:n,1]) - log(d[1:(n - 1),1])
+SP_d_rc<-zoo(SP_d_rc, fecha)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+d1 <- as.data.frame(SP_w_p)
+n = nrow(SP_w_p)
+fecha1=seq(as.Date("2016-03-28"), as.Date("2021-03-22"), by = "week")
+SP_w_rs = (d1[2:n, 1] - d1[1:(n - 1), 1]) / d1[1:(n - 1), 1]
+SP_w_rs<-zoo(SP_w_rs, fecha1)
+SP_w_rc = log(d1[2:n,1]) - log(d1[1:(n - 1),1])
+SP_w_rc<-zoo(SP_w_rc, fecha1)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+d2 <- as.data.frame(SP_m_p)
+n = nrow(SP_m_p)
+fecha2=seq(as.Date("2016-05-01"), as.Date("2021-03-22"), by = "month")
+SP_m_rs = (d2[2:n, 1] - d2[1:(n - 1), 1]) / d2[1:(n - 1), 1]
+SP_m_rs<-zoo(SP_m_rs, fecha2)
+SP_m_rc = log(d2[2:n,1]) - log(d2[1:(n - 1),1])
+SP_m_rc<-zoo(SP_m_rc, fecha2)
+```
+
+Al graficar los dos tipos deretornos y compararlos con los precios observamos que a diferencia de los precios, los retornos fluctúan alrededor de una media de cero, sin tener una volatilidad constante.
+
+```{r echo=FALSE, fig.pos='h', out.height='5in'}
+grid.arrange(
+autoplot(SP_d_p) + ggtitle("Precios diarios de S&P500 Index"),
+autoplot(SP_d_rs) + ggtitle("Retornos simples diarios de S&P500 Index") + ylab('')+ xlab(''),
+autoplot(SP_d_rc) + ggtitle("Log-retornos diarios de S&P500 Index") + ylab('')+ xlab(''),
+nrow= 3)
+```
