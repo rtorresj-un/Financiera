@@ -4,65 +4,103 @@ subtitle: "Raúl Esteban Torres Jiménez & Juanita Cortés Arroyo"
 output: pdf_document
 ---
 
+1. Sustente y explique su respuesta frente a las siguientes preguntas.
+  
+  1. ¿Cómo se define un mercado eficiente? Defina las tres formas de la hipótesis usando elementos teóricos y matemáticos. Para ello describa las fórmulas de precios y retornos.
+  
+  2. Suponga que los directores ejecutivos de Ecopetrol (quienes tienen acciones de la empresa y las transan en bolsa) obtienen rendimientos anormalmente altos en las acciones de su propia empresa. ¿Esto invalidaría la hipótesis de mercados eficientes?
+  Los retornos anormales que presentan los ejecutivos de Ecopetrol están asociados al conjunto de información que manejan sobre la empresa, con respecto a la mayoría de los agentes que tranzan sus acciones en el mercado. Entonces, los directores ejecutivos tienen a su disposición información privada, lo que les brinda ventajas en términos informacionales en comparación al segmento del mercado que solo puede acceder a la información pública. 
+        
+  Luego, es evidente que los directores ejecutivos pueden incorporar una mayor cantidad de información a sus decisiones de inversión, y al conocer información relevante a priori, pueden anticiparse a cambios en los precios de la acción. Por lo tanto, se puede establecer que la anormalidad de los retornos no se presenta por la ineficiencia del mercado, sino por la asimetría en el conjunto de información. 
+        
+  En conclusión, el hecho de que los directores ejecutivos de Ecopetrol obtengan mayores rendimientos en sus inversiones en la empresa, no invalida la hipótesis de mercados eficientes. 
+
+  3. ¿El precio pagado por un inversionista en el mercado por una acción es un precio justo? Discuta su respuesta.
+        
+  Suponiendo un mercado bajo competencia perfecta, libre acceso a la información y sin costos de transacción, se puede establecer que los precios de mercado siempre reflejan el valor fundamental de un activo, en otras palabras, bajo la hipótesis de mercados informacionalmente eficientes, el precio refleja el valor presente de los flujos futuros de dinero que representa la tenencia de una acción. Así, dados los supuestos enunciados, los precios del mercado eficiente no se pueden pronosticar. 
+       
+  En este sentido, el precio que paga un inversionista por una acción del mercado no obedece a un criterio de justicia sino de eficiencia, ya que la interacción descentralizada de la oferta y la demanda, que es la que genera los precios, no es moral porque no es ni predecible y tampoco perturbable por los inversionistas.
+
+  4. Si el mercado es eficiente, ¿cuál es el rendimiento esperado para un activo en ese mercado?
+        
+  El rendimiento en un mercado se puede definir como $R_t=\mu_t + \varepsilon_t$, donde $\mu_t=E[R_t]$ es la prima por riesgo del mercado en un momento \textit{t}, y $\varepsilon_t$ es la componente aleatoria del rendimiento.
+        
+  Bajo la condición más fuerte de la hipótesis de mercados eficientes, no debería haber primas por riesgo en los mercados, ya que se tiene certeza sobre lo que pueda ocurrir a los mercados.
+        
+  depende del conjunto de información que se tome, eg martin gala es el precio anterior y en la hipotesis fuerte es 0 dado que se conoce toda la información dsiponible.
+
+  5. Suponga que un inversionista ha descubierto que la raíz cuadrada de cualquier precio de acción multiplicada por el día del mes proporciona un indicador de la dirección en el movimiento del precio de esa acción en particular con una probabilidad del 75\%. ¿En este caso se estaría violando la hipótesis de mercado eficiente?
+        
+Si una persona es capaz de predecir retornos superiores a los del mercado con una mayor probabilidad, los demás agentes también estarían en la capacidad de hacerlo, dado que son perfectamente racionales y disponen del mismo conjunto de información. Así, cualquier oportunidad de arbitraje que se presente en el mercado se disipará rapidamente, ya que los agentes en conjunto percibirán la sobrevaloración (o subvaloración) de los activos. En este caso, la hipótesis de eficiencia en los mercados no se viola, puesto que los precios volverían a ser impredecibles aún en el caso donde se incorpore información adicional.
+
+2. Obtenga datos diarios y mensuales de cualquier índice accionario de bolsa para un periodo no inferior a 20 años. Con esta información realice los siguientes análisis:
+
+  1. Discuta qué mide el índice accionario elegido y realice un análisis estadístico del mismo y de sus retornos.
+    
+  El índice accionario \textbf{FTSE100} es un índice de capitalización ponderado de las 100 acciones más capitalizadas que se transan en la \textit{London Stock Exchange}. Este índice sirve como referencia para medir en promedio el rendimiento de las empresas británicas más importantes y está constituido por HSBC, Standard Chatered, Unilever, Glencore, entre otras.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca)  
+library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca); library(timeDate); library(TSstudio); library(fBasics)
 ```
-\begin{itemize}
-    \item Obtenga datos diarios y mensuales de cualquier índice accionario de bolsa para un periodo no inferior a 20 años. Con esta información realice los siguientes análisis:
-    \begin{enumerate}
-    \item Discuta qué mide el índice accionario elegido y realice un análisis estadístico del mismo y de sus retornos.
-        
-El índice accionario \textbf{FTSE100} es un índice de capitalización ponderado de las 100 acciones más capitalizadas que se transan en la \textit{London Stock Exchange}. Este índice sirve como referencia para medir en promedio el rendimiento de las empresas británicas más importantes y está constituido por HSBC, Standard Chatered, Unilever, Glencore, entre otras.
 
-\item ¿Es el mercado accionario elegido eficiente? Use diferentes horizontes de tiempo y pruebe la hipótesis considerando sus diferentes formas. Discuta los resultados.
-        
-  \end{enumerate}
-\end{itemize}
-
-En primer lugar, obtenemos los datos de precios de cierre de los últimos 5 años S\&P500 Index de Yahoo Finance según las frecuencias requeridas, es decir, diaria, mensual y semanal.
+  En primer lugar, obtenemos los datos de precios de cierre de los últimos 5 años S\&P500 Index de Yahoo Finance según las frecuencias requeridas, es decir, diaria, mensual y semanal.
 
 ```{r , message=FALSE, warning=FALSE, results='hide'}
 getSymbols('^FTSE',from = "1985-01-01", to = "2021-04-29", periodicity = "daily")
-UK_d_p <- Cl(FTSE)
+UK_d_p <- na.omit(Cl(FTSE))
 getSymbols('^FTSE', from = "1985-01-01", to = "2021-04-29", periodicity = "monthly")
-UK_m_p <- Cl(FTSE)
+UK_m_p <- na.omit(Cl(FTSE))
 ```
 
-Luego, procedemos a calcular los retornos continuos de los precios para cada serie.
+  Luego, procedemos a calcular los retornos continuos de los precios para cada serie.
 
 ```{r}
 diario <- as.data.frame(UK_d_p)
 n1 = nrow(UK_d_p)
 dias=seq(as.Date("1985-01-01"), as.Date("2021-04-29"), by = "day")
-UK_d_rc = log(diario[2:n1,1]) - log(diario[1:(n1 - 1),1])
-UK_d_rc<-zoo(UK_d_rc, dias)
+UK_d_r = log(diario[2:n1,1]) - log(diario[1:(n1 - 1),1])
+UK_d_r<-zoo(UK_d_r, dias)
 ```
 
 ```{r}
 mensual <- as.data.frame(UK_m_p)
 n2 = nrow(UK_m_p)
 meses=seq(as.Date("1985-01-01"), as.Date("2021-04-29"), by = "month")
-UK_m_rc = log(mensual[2:n2,1]) - log(mensual[1:(n2 - 1),1])
-UK_m_rc<-zoo(UK_m_rc, meses)
+UK_m_r = log(mensual[2:n2,1]) - log(mensual[1:(n2 - 1),1])
+UK_m_r<-zoo(UK_m_r, meses)
 ```
 
-Al graficar los dos tipos de retornos y compararlos con los precios observamos que a diferencia de los precios, los retornos fluctúan alrededor de una media de cero, sin tener una volatilidad constante.
+  Al graficar los dos tipos de retornos y compararlos con los precios observamos que a diferencia de los precios, los retornos fluctúan alrededor de una media de cero, sin tener una volatilidad constante.
 
-```{r echo=FALSE, fig.pos='h', out.height='5in'}
+```{r echo=FALSE, fig.pos='h'}
 grid.arrange(
 autoplot(UK_d_p) + ggtitle("Precios diarios de FTSE100 Index"),
-autoplot(UK_d_rc) + ggtitle("Log-retornos diarios de FTSE100 Index") + ylab('')+ xlab(''),
-nrow= 2)
-```
-
-```{r echo=FALSE, fig.pos='h', out.height='5in'}
-grid.arrange(
+autoplot(UK_d_r) + ggtitle("Log-retornos diarios de FTSE100 Index") + ylab('')+ xlab(''),
 autoplot(UK_m_p) + ggtitle("Precios mensuales de FTSE100 Index"),
-autoplot(UK_m_rc) + ggtitle("Log-retornos mensuales de FTSE100 Index") + ylab('')+ xlab(''),
+autoplot(UK_m_r) + ggtitle("Log-retornos mensuales de FTSE100 Index") + ylab('')+ xlab(''),
 nrow= 2)
 ```
 
+```{r echo=FALSE}
+stats_d<-basicStats(UK_d_r)[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
+stats_m<-basicStats(UK_m_r)[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
+stats<-data.frame(cbind(stats_d, stats_m))
+row.names(stats)<-c("Mean", "StDev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis")
+colnames(stats)<-c('Daily', 'Monthly')
+knitr::kable(stats)
+```
+
+```{r echo=FALSE, fig.pos='h'}
+hist(UK_d_r, freq=F, breaks=365, main = 'Histograma de Log-retornos diarios', xlab = '')
+lines(density(UK_d_r), col="red", )
+lines(seq(min(UK_d_r), max(UK_d_r), length=length(UK_d_r)), dnorm(seq(min(UK_d_r), max(UK_d_r), length=length(UK_d_r)), mean(UK_d_r), sd(UK_d_r)), col="blue")
+hist(UK_m_r, freq=F, breaks=12, main = 'Histograma de Log-retornos mensuales', ylim = c(0,12), xlab = '')
+lines(density(UK_m_r), col="red", )
+lines(seq(min(UK_m_r), max(UK_m_r), length=length(UK_m_r)), dnorm(seq(min(UK_m_r), max(UK_m_r), length=length(UK_m_r)), mean(UK_m_r), sd(UK_m_r)), col="blue")
+```
+
+  2. ¿Es el mercado accionario elegido eficiente? Use diferentes horizontes de tiempo y pruebe la hipótesis considerando sus diferentes formas. Discuta los resultados.
 
 
 
