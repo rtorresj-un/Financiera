@@ -78,6 +78,8 @@ ggplot(UK_m_r)+geom_line(aes(fecha, FTSE.Close))+ggtitle("Log-retornos mensuales
 nrow= 2)
 ```
 
+Tanto para los retornos diarios como mensuales se observa que el valor de la desviación estándar es mayor al valor medio, por lo que la volatilidad de los retornos domina el comportamiento dinámico de la serie, además, con los valores asociados a la asimetría y curtosis, se puede deducir que las series son negativamente asimétricas y leptocúrticas, por lo que existe una mayor probabilidad de obtener retornos positivos, los cuales se encuentran concetrados en su valor medio.
+
 ```{r echo=FALSE}
 UK_d_r<-UK_d_r[,1]; UK_m_r<-UK_m_r[,1]
 stats_d<-basicStats(UK_d_r)[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
@@ -87,7 +89,7 @@ row.names(stats)<-c("Mean", "SD", "Minimum", "Maximum", "Variance","Skewness","K
 colnames(stats)<-c('Daily', 'Monthly')
 knitr::kable(stats)
 ```
-
+Los hechos mencionados anteriormente se confirman al observar la distribución de las series, donde se observa que los datos se encuentran altamente concentrados al rededor de la media en comparación a una distribución normal y existe una mayor probabilidad de ocurrencia de datos atípicos, comportamiento representado en las colas pesadas de la distribución.
 ```{r echo=FALSE, fig.pos='h'}
 hist(UK_d_r, freq=F, breaks=365, main = 'Histograma de Log-retornos diarios', xlab = '')
 lines(density(UK_d_r), col="red", )
@@ -96,7 +98,8 @@ hist(UK_m_r, freq=F, breaks=12, main = 'Histograma de Log-retornos mensuales', y
 lines(density(UK_m_r), col="red", )
 lines(seq(min(UK_m_r), max(UK_m_r), length=length(UK_m_r)), dnorm(seq(min(UK_m_r), max(UK_m_r), length=length(UK_m_r)), mean(UK_m_r), sd(UK_m_r)), col="blue")
 ```
-
+Finalmente, aunque la serie diaria y mensual cumplen los hechos estilizados que caracterizan el comportamiento de las series financieras, al compararlas se identifica que con el aumento de la periodicidad, estas características se van volviendo más débiles y la distribución se va asemejando a la normal, perdiendo su apariencia leptocurtica, asimétrica negativa y volatilidad, comportamiento que se genera gracias al teorema del límite central.   
+  
   2. ¿Es el mercado accionario elegido eficiente? Use diferentes horizontes de tiempo y pruebe la hipótesis considerando sus diferentes formas. Discuta los resultados.
 
 ```{r}
