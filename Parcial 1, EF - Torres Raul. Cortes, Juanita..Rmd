@@ -4,9 +4,37 @@ subtitle: "Raúl Esteban Torres Jiménez & Juanita Cortés Arroyo"
 output: pdf_document
 ---
 
-1. Sustente y explique su respuesta frente a las siguientes preguntas.
+* Sustente y explique su respuesta frente a las siguientes preguntas.
   
   1. ¿Cómo se define un mercado eficiente? Defina las tres formas de la hipótesis usando elementos teóricos y matemáticos. Para ello describa las fórmulas de precios y retornos.
+  
+ Considerando un mercado que funciona bajo competencia perfecta, con agentes racionales y sin costos de información o transacción, un mercado eficiente es aquel en el que los cambios en los precios no pueden ser pronosticados aún si se incorporara toda la información disponible y las expectativas de los agentes que participan en el mercado. Así, el valor esperado de los retornos basado en la información disponible es igual a 0 y el precio de los activos reflejará la información disponible sobre los factores que lo afectan, en otras palabras, el precio es igual al valor fundamental.
+        
+Dicho esto, los retornos pueden definirse como:
+$$r_t =\mu_t+ \epsilon_t$$
+Donde $\mu_t$ representa la media y $\epsilon_t$ el componente aleatorio asociado a la llegada de nueva información al mercado, y como se menciono anteriormente, dado que las expectativas sobre los retornos son racionales, se esperaría que no exista un cambio en los precios.
+        
+Sin embargo, no basta con considerar la racionalidad de los agentes, la posibilidad o no de generar rendimientos superiores a los del mercado, dependerá del conjunto de información que manejen los agentes, y este comportamiento se verá reflejado en el comportamiento del termino aleatorio, derivándose tres formas de la hipótesis de mercados eficientes
+        
+\textbf{Forma débil:} bajo esta definición solo se incluye el precio histórico de los precios, de modo que la historia de los mismos se ve reflejada en el precio de hoy, así, el mercado es eficiente siempre y cuando no se pueda formular una estrategia que genere rendimientos superiores a partir de este conjunto informacional. De modo que el análisis técnico (el cual se encarga de encontrar regularidades en las series) no funciona. 
+        
+Bajo esta hipótesis, 
+
+$$\epsilon_t \sim WN \text{    es decir,   } cor(\epsilon_t,\epsilon_s)=0 \text{ con }t \neq s$$   
+
+Imponiéndose una restricción de linealidad entre los retornos y por tanto una varianza constante en el tiempo $\sigma^2$
+        
+\textbf{Forma semifuerte:} En este caso se agrega la información pública al conjunto de información, como los informes anuales de las empresas o la información macroeconómica generada por instituciones estatales, de modo que la introducción del análisis fundamental tampoco sirve para generar estrategias que generen retornos superiores, pues todos los agentes tienen acceso a este conjunto de información. \\
+Bajo esta hipótesis,
+$$\epsilon_t \sim MD \text{ ,  } \epsilon_t= \sigma_t \eta_t$$
+Donde $\sigma_t$ es la volatilidad de los retornos y $\eta_t$ es un proceso aleatorio, lo que implica que $E[\epsilon_t|\epsilon_{t-1},...,\epsilon_{t-n}]=0$ es decir, que el mejor predictor del precio en el siguiente periodo, es el mismo del periodo anterior y la volatilidad de los retornos $(r_t^2)$ es predecible y variable en el tiempo, por lo que se acepta la no linealidad de los retornos.
+        
+\textbf{Forma fuerte:} En esta definición, tanto la información pública como privada se ve reflejada en los precios, por lo que no se le puede sacar provecho a la información disponible, ni a las noticias futuras.
+        
+En este caso el termino aleatorio  
+$$\epsilon_t \sim IID(0,\sigma^2)|F_t$$
+Lo que signifia que $\epsilon_t$ proviene de una misma distribución y que cada observación en el tiempo es independiente tanto del pasado como de futuro   
+  
   
   2. Suponga que los directores ejecutivos de Ecopetrol (quienes tienen acciones de la empresa y las transan en bolsa) obtienen rendimientos anormalmente altos en las acciones de su propia empresa. ¿Esto invalidaría la hipótesis de mercados eficientes?
   Los retornos anormales que presentan los ejecutivos de Ecopetrol están asociados al conjunto de información que manejan sobre la empresa, con respecto a la mayoría de los agentes que tranzan sus acciones en el mercado. Entonces, los directores ejecutivos tienen a su disposición información privada, lo que les brinda ventajas en términos informacionales en comparación al segmento del mercado que solo puede acceder a la información pública. 
@@ -23,17 +51,17 @@ output: pdf_document
 
   4. Si el mercado es eficiente, ¿cuál es el rendimiento esperado para un activo en ese mercado?
         
-  El rendimiento en un mercado se puede definir como $R_t=\mu_t + \varepsilon_t$, donde $\mu_t=E[R_t]$ es la prima por riesgo del mercado en un momento \textit{t}, y $\varepsilon_t$ es la componente aleatoria del rendimiento.
+  El rendimiento de un activo en el mercado se puede definir como $R_t=\mu_t + \varepsilon_t$, donde $\mu_t=E[R_t]$ es la prima por riesgo del mercado en un momento \textit{t}, y $\varepsilon_t$ es el componente aleatorio del rendimiento.
         
-  Bajo la condición más fuerte de la hipótesis de mercados eficientes, no debería haber primas por riesgo en los mercados, ya que se tiene certeza sobre lo que pueda ocurrir a los mercados.
+  Como la media del proceso ($\mu$) o prima por riesgo esta formada a través de expectativas racionales, se puede predecir y dependerá de la valoración del riesgo hacia la contra parte, por lo que el valor esperado de este componente puede ser o no 0 dependiendo de la información que dispongan los inversionistas y el tipo de activo, por ejemplo, bajo la hipótesis fuerte, al tener información completa sobre el presente y las noticias futuras este componente sería igual a 0.
         
-  depende del conjunto de información que se tome, eg martin gala es el precio anterior y en la hipotesis fuerte es 0 dado que se conoce toda la información dsiponible.
+  Sin embargo, el valor esperado de los rendimientos de un activo descontadas las primas por riesgo será 0 sin importar la hipótesis bajo la cual se este evaluando la eficiencia del mercado.
 
   5. Suponga que un inversionista ha descubierto que la raíz cuadrada de cualquier precio de acción multiplicada por el día del mes proporciona un indicador de la dirección en el movimiento del precio de esa acción en particular con una probabilidad del 75\%. ¿En este caso se estaría violando la hipótesis de mercado eficiente?
         
 Si una persona es capaz de predecir retornos superiores a los del mercado con una mayor probabilidad, los demás agentes también estarían en la capacidad de hacerlo, dado que son perfectamente racionales y disponen del mismo conjunto de información. Así, cualquier oportunidad de arbitraje que se presente en el mercado se disipará rapidamente, ya que los agentes en conjunto percibirán la sobrevaloración (o subvaloración) de los activos. En este caso, la hipótesis de eficiencia en los mercados no se viola, puesto que los precios volverían a ser impredecibles aún en el caso donde se incorpore información adicional.
 
-2. Obtenga datos diarios y mensuales de cualquier índice accionario de bolsa para un periodo no inferior a 20 años. Con esta información realice los siguientes análisis:
+* Obtenga datos diarios y mensuales de cualquier índice accionario de bolsa para un periodo no inferior a 20 años. Con esta información realice los siguientes análisis:
 
   1. Discuta qué mide el índice accionario elegido y realice un análisis estadístico del mismo y de sus retornos.
     
@@ -89,6 +117,7 @@ row.names(stats)<-c("Mean", "SD", "Minimum", "Maximum", "Variance","Skewness","K
 colnames(stats)<-c('Daily', 'Monthly')
 knitr::kable(stats)
 ```
+
 Los hechos mencionados anteriormente se confirman al observar la distribución de las series, donde se observa que los datos se encuentran altamente concentrados al rededor de la media en comparación a una distribución normal y existe una mayor probabilidad de ocurrencia de datos atípicos, comportamiento representado en las colas pesadas de la distribución.
 ```{r echo=FALSE, fig.pos='h'}
 hist(UK_d_r, freq=F, breaks=365, main = 'Histograma de Log-retornos diarios', xlab = '')
@@ -97,7 +126,9 @@ lines(seq(min(UK_d_r), max(UK_d_r), length=length(UK_d_r)), dnorm(seq(min(UK_d_r
 hist(UK_m_r, freq=F, breaks=12, main = 'Histograma de Log-retornos mensuales', ylim = c(0,12), xlab = '')
 lines(density(UK_m_r), col="red", )
 lines(seq(min(UK_m_r), max(UK_m_r), length=length(UK_m_r)), dnorm(seq(min(UK_m_r), max(UK_m_r), length=length(UK_m_r)), mean(UK_m_r), sd(UK_m_r)), col="blue")
+
 ```
+
 Finalmente, aunque la serie diaria y mensual cumplen los hechos estilizados que caracterizan el comportamiento de las series financieras, al compararlas se identifica que con el aumento de la periodicidad, estas características se van volviendo más débiles y la distribución se va asemejando a la normal, perdiendo su apariencia leptocurtica, asimétrica negativa y volatilidad, comportamiento que se genera gracias al teorema del límite central.   
   
   2. ¿Es el mercado accionario elegido eficiente? Use diferentes horizontes de tiempo y pruebe la hipótesis considerando sus diferentes formas. Discuta los resultados.
