@@ -141,7 +141,7 @@ $H_0: r_t \sim WN \rightarrow \rho_k =0  \forall k$
 
 Al observar el gráfico de autocorrelación (ACF) para los retornos diarios, se presentan varios rezagos significativos, sin embargo, es necesario verificar si los retornos se correlacionan serialmente con el uso de tests estadísticos adicionales. En cuanto a los retornos mensuales, no se observan retornos significativos, lo cual es coherente con el comportamiento del mercado financiero, pues no se esperaría que la información lejana tuviera impacto sobre los precios actuales.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, out.height='5in'}
 grid.arrange(
 ggAcf(UK_d_r, lag.max = 100, main= "ACF retornos diarios"),
 ggAcf(UK_m_r, lag.max = 50, main= "ACF retornos mensuales"),
@@ -224,7 +224,7 @@ knitr::kable(Lo.Mac(UK_m_r, c(2,50,200))$Stats)
 
 Ahora, para observar la convergencia de la razón varianza de los retornos, realizamos la gráfica acumulativa de esta varianza para retornos diarios y mensuales con sus respectivos intervalos de confianza, dicha gráfica arroja resultados positivos para los retornos mensuales, así, los retornos convergen a su media a corto y largo plazo. En el caso de los retornos los diarios, se puede concluir que solo después de varios periodos su razón de varianza disminuye, por lo que los retornos no se alejan demasiado de su media en el largo plazo.
 
-```{r, fig.pos='h', out.height='5in', results='hide'}
+```{r, fig.pos='h', out.height='4in', results='hide'}
 VR.plot(UK_d_r,c(2,50,200))
 VR.plot(UK_m_r,c(2,50,200))
 ```
