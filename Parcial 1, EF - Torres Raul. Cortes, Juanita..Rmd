@@ -184,11 +184,11 @@ Por otro lado, consecuente con los gráficos de autocorrelación, los retornos m
 ############### IID (RW1) => MARTINGALE DIFFERENCE (RW2) => WHITE NOISE (RW3)
 
 ###### Testing RW3 
-ggAcf(UK_m_r)
+
 Box.test(UK_m_r, lag = 1, type = c("Ljung-Box"), fitdf = 0)
-Box.test(UK_m_r, lag = 4, type = c("Ljung-Box"), fitdf = 0
+Box.test(UK_m_r, lag = 4, type = c("Ljung-Box"), fitdf = 0)
 Box.test(UK_m_r, lag = 8, type = c("Ljung-Box"), fitdf = 0)
-Box.test(UK_m_r, lag = 12, type = c("Ljung-Box"), fitdf = 0     
+Box.test(UK_m_r, lag = 12, type = c("Ljung-Box"), fitdf = 0)     
          
          
 Box.test(UK_m_r, lag = 1, type = c("Box-Pierce"), fitdf = 0)
@@ -196,12 +196,12 @@ Box.test(UK_m_r, lag = 4, type = c("Box-Pierce"), fitdf = 0)
 Box.test(UK_m_r, lag = 8, type = c("Box-Pierce"), fitdf = 0)
 Box.test(UK_m_r, lag = 12, type = c("Box-Pierce"), fitdf = 0)
 ```
-Finalmente, para la hipótesis débil de mercados eficeintes
+Finalmente, para la hipótesis débil de mercados eficientes se cuenta con el test no paramétrico de von Neumann para aleatoriedad, que concluye que tanto los retornos diarios como mensuales presentan un comportamiento aleatorio
 ```{r}
 bartels.rank.test(UK_d_r, pvalue="normal")
 bartels.rank.test(UK_m_r, pvalue="normal")
 ```
-
+Por otro lado, para testear la hipótesis fuerte de mercados eficiente se realiza el test de razon de varianzas considerando la homocedasticidad (M1) y heterocedaticidad (M2) de los retornos
 
 
 ```{r}
