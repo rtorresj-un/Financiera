@@ -133,40 +133,89 @@ Finalmente, aunque la serie diaria y mensual cumplen los hechos estilizados que 
   
   2. ¿Es el mercado accionario elegido eficiente? Use diferentes horizontes de tiempo y pruebe la hipótesis considerando sus diferentes formas. Discuta los resultados.
 
+Bajo la hipótesis débil de mercados eficientes, si los retornos no son predecibles, entonces deberian comportarse como ruido blanco y por tanto no debería existir correlaciones de los retornos entre el momento $t$ y $t-k$  
+
+$H_0: r_t \sim WN \rightarrow \rho_k =0  \forall k$
+
+
+Al observar el grafico de autocorrelación (ACF) para los retornos diarios, se observa que existen varios rezagos significativos, sin embargo, se requieren de los otros test para verificar si los retornos se correlacionan serialmente, por otro lado, en cuanto a los retornos mensuales, no se observan retornos significativos lo cual es coherente con el comporamiento del mercado financiero, pues no se espararía que la información lejana tuviera impacto sobre los precios actuales.   
+
+
 ```{r}
 ############### IID (RW1) => MARTINGALE DIFFERENCE (RW2) => WHITE NOISE (RW3)
 
 ###### Testing RW3 
-ggAcf(UK_d_r)
-Box.test(UK_d_r, lag = 1, type = c("Ljung-Box"), fitdf = 0) 
-Box.test(UK_d_r, lag = 1, type = c("Box-Pierce"), fitdf = 0)
-
-bartels.rank.test(UK_d_r, pvalue="normal")
-
-###### Testing RW1 
-Lo.Mac(UK_d_r, c(2,50,200)) # it checks whether the VR = 1 for a given k to see whether the series is a random walk (which is the null hypothesis).
-
-# M1 is the Lo.Mac statistic under the homoscedastic assumption. M2 is the Lo.Mac statistic under the heteroscedastic assumption. Better to look at M2 than M1 as M2 is based on a more realistic assumption. M1 and M2 are assumed to follow a normal distribution. So if M1 or M2 is greater than 1.96, you can reject the null hypothesis at 5% significant level.
+grid.arrange(
+ggAcf(UK_d_r, main= "ACF retornos diarios"),
+ggAcf(UK_m_r, main= "ACF retornos mensuales"),
+ncol=2)
 ```
+
+
+
+Para los test de Jung-Box y Box-Pierce las hipotesis se pueden resumir en:
+$H_o:$ No autocorrelación serial de los retornos
+$H_1:$ Presencia de correlación serial
+
+De las 2 pruebas se concluye que existe correlación serial para los retornos diarios  desde el tercer rezago aproximadamente, por lo que el comportamiento pasado presenta una relación lineal de los retornos futuros, y no habría evidencia para demostrar el cumpliento de la hipótesis debil de eficiencia del mercado.
+
+
+
+```{r}
+
+Box.test(UK_d_r, lag = 1, type = c("Ljung-Box"), fitdf = 0) 
+Box.test(UK_d_r, lag = 4, type = c("Ljung-Box"), fitdf = 0) 
+Box.test(UK_d_r, lag = 8, type = c("Ljung-Box"), fitdf = 0) 
+Box.test(UK_d_r, lag = 12, type = c("Ljung-Box"), fitdf = 0) 
+
+
+Box.test(UK_d_r, lag = 1, type = c("Box-Pierce"), fitdf = 0)
+Box.test(UK_d_r, lag = 4, type = c("Box-Pierce"), fitdf = 0)
+Box.test(UK_d_r, lag = 8, type = c("Box-Pierce"), fitdf = 0)
+Box.test(UK_d_r, lag = 12, type = c("Box-Pierce"), fitdf = 0)
+
+
+```
+
+Por otro lado, consecuente con los gráficos de autocorrelación, los retornos mensuales no presentan una estructura de autocorrelación serial a la luz de los test de Ljung-Box y Box-Pierce.
+
 
 ```{r}
 ############### IID (RW1) => MARTINGALE DIFFERENCE (RW2) => WHITE NOISE (RW3)
 
 ###### Testing RW3 
 ggAcf(UK_m_r)
-Box.test(UK_m_r, lag = 1, type = c("Ljung-Box"), fitdf = 0) 
+Box.test(UK_m_r, lag = 1, type = c("Ljung-Box"), fitdf = 0)
+Box.test(UK_m_r, lag = 4, type = c("Ljung-Box"), fitdf = 0
+Box.test(UK_m_r, lag = 8, type = c("Ljung-Box"), fitdf = 0)
+Box.test(UK_m_r, lag = 12, type = c("Ljung-Box"), fitdf = 0     
+         
+         
 Box.test(UK_m_r, lag = 1, type = c("Box-Pierce"), fitdf = 0)
-
+Box.test(UK_m_r, lag = 4, type = c("Box-Pierce"), fitdf = 0)
+Box.test(UK_m_r, lag = 8, type = c("Box-Pierce"), fitdf = 0)
+Box.test(UK_m_r, lag = 12, type = c("Box-Pierce"), fitdf = 0)
+```
+Finalmente, para la hipótesis débil de mercados eficeintes
+```{r}
+bartels.rank.test(UK_d_r, pvalue="normal")
 bartels.rank.test(UK_m_r, pvalue="normal")
+```
+
+
+
+```{r}
+
+###### Testing RW1 
+Lo.Mac(UK_d_r, c(2,50,200)) # it checks whether the VR = 1 for a given k to see whether the series is a random walk (which is the null hypothesis).
+
+# M1 is the Lo.Mac statistic under the homoscedastic assumption. M2 is the Lo.Mac statistic under the heteroscedastic assumption. Better to look at M2 than M1 as M2 is based on a more realistic assumption. M1 and M2 are assumed to follow a normal distribution. So if M1 or M2 is greater than 1.96, you can reject the null hypothesis at 5% significant level.
 
 ###### Testing RW1 
 Lo.Mac(UK_m_r, c(2,50,150)) # it checks whether the VR = 1 for a given k to see whether the series is a random walk (which is the null hypothesis).
 
 # M1 is the Lo.Mac statistic under the homoscedastic assumption. M2 is the Lo.Mac statistic under the heteroscedastic assumption. Better to look at M2 than M1 as M2 is based on a more realistic assumption. M1 and M2 are assumed to follow a normal distribution. So if M1 or M2 is greater than 1.96, you can reject the null hypothesis at 5% significant level.
 ```
-
-
-
 
 
 
