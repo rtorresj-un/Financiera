@@ -11,8 +11,8 @@ output: pdf_document
  Considerando un mercado que funciona bajo competencia perfecta, con agentes racionales y sin costos de información o transacción, un mercado eficiente es aquel en el que los cambios en los precios no pueden ser pronosticados aún si se incorporara toda la información disponible y las expectativas de los agentes que participan en el mercado. Así, el valor esperado de los retornos basado en la información disponible es igual a 0 y el precio de los activos reflejará la información disponible sobre los factores que lo afectan, en otras palabras, el precio es igual al valor fundamental.
         
 Dicho esto, los retornos pueden definirse como:
-$$r_t =\mu_t+ \epsilon_t$$
-Donde $\mu_t$ representa la media y $\epsilon_t$ el componente aleatorio asociado a la llegada de nueva información al mercado, y como se menciono anteriormente, dado que las expectativas sobre los retornos son racionales, se esperaría que no exista un cambio en los precios.
+$$r_t =\mu_t+ \varepsilon_t$$
+Donde $\mu_t$ representa la media y $\varepsilon_t$ el componente aleatorio asociado a la llegada de nueva información al mercado, y como se menciono anteriormente, dado que las expectativas sobre los retornos son racionales, se esperaría que no exista un cambio en los precios.
         
 Sin embargo, no basta con considerar la racionalidad de los agentes, la posibilidad o no de generar rendimientos superiores a los del mercado, dependerá del conjunto de información que manejen los agentes, y este comportamiento se verá reflejado en el comportamiento del termino aleatorio, derivándose tres formas de la hipótesis de mercados eficientes
         
@@ -20,20 +20,20 @@ Sin embargo, no basta con considerar la racionalidad de los agentes, la posibili
         
 Bajo esta hipótesis, 
 
-$$\epsilon_t \sim WN \text{    es decir,   } cor(\epsilon_t,\epsilon_s)=0 \text{ con }t \neq s$$   
+$$\varepsilon_t \sim WN \text{    es decir,   } cor(\varepsilon_t,\varepsilon_s)=0 \text{ con }t \neq s$$   
 
 Imponiéndose una restricción de linealidad entre los retornos y por tanto una varianza constante en el tiempo $\sigma^2$
         
 \textbf{Forma semifuerte:} En este caso se agrega la información pública al conjunto de información, como los informes anuales de las empresas o la información macroeconómica generada por instituciones estatales, de modo que la introducción del análisis fundamental tampoco sirve para generar estrategias que generen retornos superiores, pues todos los agentes tienen acceso a este conjunto de información. \\
 Bajo esta hipótesis,
-$$\epsilon_t \sim MD \text{ ,  } \epsilon_t= \sigma_t \eta_t$$
-Donde $\sigma_t$ es la volatilidad de los retornos y $\eta_t$ es un proceso aleatorio, lo que implica que $E[\epsilon_t|\epsilon_{t-1},...,\epsilon_{t-n}]=0$ es decir, que el mejor predictor del precio en el siguiente periodo, es el mismo del periodo anterior y la volatilidad de los retornos $(r_t^2)$ es predecible y variable en el tiempo, por lo que se acepta la no linealidad de los retornos.
+$$\varepsilon_t \sim MD \text{ ,  } \varepsilon_t= \sigma_t \eta_t$$
+Donde $\sigma_t$ es la volatilidad de los retornos y $\eta_t$ es un proceso aleatorio, lo que implica que $E[\varepsilon_t|\varepsilon_{t-1},...,\varepsilon_{t-n}]=0$ es decir, que el mejor predictor del precio en el siguiente periodo, es el mismo del periodo anterior y la volatilidad de los retornos $(r_t^2)$ es predecible y variable en el tiempo, por lo que se acepta la no linealidad de los retornos.
         
 \textbf{Forma fuerte:} En esta definición, tanto la información pública como privada se ve reflejada en los precios, por lo que no se le puede sacar provecho a la información disponible, ni a las noticias futuras.
         
 En este caso el termino aleatorio  
-$$\epsilon_t \sim IID(0,\sigma^2)|F_t$$
-Lo que signifia que $\epsilon_t$ proviene de una misma distribución y que cada observación en el tiempo es independiente tanto del pasado como de futuro   
+$$\varepsilon_t \sim IID(0,\sigma^2)|F_t$$
+Lo que signifia que $\varepsilon_t$ proviene de una misma distribución y que cada observación en el tiempo es independiente tanto del pasado como de futuro   
   
   
   2. Suponga que los directores ejecutivos de Ecopetrol (quienes tienen acciones de la empresa y las transan en bolsa) obtienen rendimientos anormalmente altos en las acciones de su propia empresa. ¿Esto invalidaría la hipótesis de mercados eficientes?
