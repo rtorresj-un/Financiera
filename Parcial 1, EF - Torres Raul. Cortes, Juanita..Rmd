@@ -1,7 +1,9 @@
 ---
 title: "Parcial 1 - Econometría Financiera"
-subtitle: "Raúl Esteban Torres Jiménez & Juanita Cortés Arroyo"
-output: pdf_document
+subtitle: Raúl Esteban Torres Jiménez & Juanita Cortés Arroyo
+output:
+  word_document: default
+  pdf_document: default
 ---
 
 * Sustente y explique su respuesta frente a las siguientes preguntas.
