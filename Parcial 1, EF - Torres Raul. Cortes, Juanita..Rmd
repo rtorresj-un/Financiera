@@ -10,32 +10,33 @@ output:
   
   1. ¿Cómo se define un mercado eficiente? Defina las tres formas de la hipótesis usando elementos teóricos y matemáticos. Para ello describa las fórmulas de precios y retornos.
   
- Considerando un mercado que funciona bajo competencia perfecta, con agentes racionales y sin costos de información o transacción, un mercado eficiente es aquel en el que los cambios en los precios no pueden ser pronosticados aún si se incorporara toda la información disponible y las expectativas de los agentes que participan en el mercado. Así, el valor esperado de los retornos basado en la información disponible es igual a 0 y el precio de los activos reflejará la información disponible sobre los factores que lo afectan, en otras palabras, el precio es igual al valor fundamental.
+ Considerando un mercado que funciona bajo competencia perfecta, con agentes racionales y sin costos de información o transacción, un mercado eficiente se caracteriza porque los cambios en los precios no pueden ser pronosticados aún si se incorporara toda la información disponible y las expectativas de los agentes que participan en el mercado. Así, el valor esperado de los retornos basado en la información disponible es igual a 0 y el precio de los activos reflejará la información disponible sobre los factores que lo afectan, en otras palabras, el precio es igual al valor fundamental.
         
 Dicho esto, los retornos pueden definirse como:
-$$r_t =\mu_t+ \epsilon_t$$
-Donde $\mu_t$ representa la media y $\epsilon_t$ el componente aleatorio asociado a la llegada de nueva información al mercado, y como se menciono anteriormente, dado que las expectativas sobre los retornos son racionales, se esperaría que no exista un cambio en los precios.
+$$r_t =\mu_t+ \varepsilon_t$$
+Donde $\mu_t$ representa la media y $\varepsilon_t$ el componente aleatorio asociado a la llegada de nueva información al mercado, y dado que las expectativas sobre los retornos son racionales, se esperaría que no exista un cambio en los precios.
         
 Sin embargo, no basta con considerar la racionalidad de los agentes, la posibilidad o no de generar rendimientos superiores a los del mercado, dependerá del conjunto de información que manejen los agentes, y este comportamiento se verá reflejado en el comportamiento del termino aleatorio, derivándose tres formas de la hipótesis de mercados eficientes
         
-\textbf{Forma débil:} bajo esta definición solo se incluye el precio histórico de los precios, de modo que la historia de los mismos se ve reflejada en el precio de hoy, así, el mercado es eficiente siempre y cuando no se pueda formular una estrategia que genere rendimientos superiores a partir de este conjunto informacional. De modo que el análisis técnico (el cual se encarga de encontrar regularidades en las series) no funciona. 
+\textbf{Forma débil:} bajo esta definición solo se incluye el precio histórico de los precios, de modo que el pasado de los mismos se ve reflejada en el precio de hoy. En este sentido, el mercado es eficiente siempre y cuando no se pueda formular una estrategia que genere rendimientos superiores a partir de este conjunto informacional. De modo que el análisis técnico (el cual se encarga de encontrar regularidades en las series) no funciona. 
         
 Bajo esta hipótesis, 
 
-$$\epsilon_t \sim WN \text{    es decir,   } cor(\epsilon_t,\epsilon_s)=0 \text{ con }t \neq s$$   
+$$\varepsilon_t \sim WN \text{    es decir,   } cor(\varepsilon_t,\varepsilon_s)=0 \text{ con }t \neq s$$   
 
 Imponiéndose una restricción de linealidad entre los retornos y por tanto una varianza constante en el tiempo $\sigma^2$
         
-\textbf{Forma semifuerte:} En este caso se agrega la información pública al conjunto de información, como los informes anuales de las empresas o la información macroeconómica generada por instituciones estatales, de modo que la introducción del análisis fundamental tampoco sirve para generar estrategias que generen retornos superiores, pues todos los agentes tienen acceso a este conjunto de información. \\
+\textbf{Forma semifuerte:} En este caso se agrega la información pública al conjunto de información, como los informes anuales de las empresas o la información macroeconómica generada por instituciones estatales, de modo que la introducción del análisis fundamental tampoco sirve para generar estrategias que generen retornos superiores, pues todos los agentes tienen acceso a este conjunto de información.
+
 Bajo esta hipótesis,
-$$\epsilon_t \sim MD \text{ ,  } \epsilon_t= \sigma_t \eta_t$$
-Donde $\sigma_t$ es la volatilidad de los retornos y $\eta_t$ es un proceso aleatorio, lo que implica que $E[\epsilon_t|\epsilon_{t-1},...,\epsilon_{t-n}]=0$ es decir, que el mejor predictor del precio en el siguiente periodo, es el mismo del periodo anterior y la volatilidad de los retornos $(r_t^2)$ es predecible y variable en el tiempo, por lo que se acepta la no linealidad de los retornos.
+$$\varepsilon_t \sim MD \text{ ,  } \varepsilon_t= \sigma_t \eta_t$$
+Donde $\sigma_t$ es la volatilidad de los retornos y $\eta_t$ es un proceso aleatorio. Esto implica que $E[\varepsilon_t|\varepsilon_{t-1},...,\varepsilon_{t-n}]=0$, i.e., que el mejor predictor del precio del siguiente periodo es el precio del periodo innmediatamente anterior, además, la volatilidad de los retornos $(r_t^2)$ es predecible y variable en el tiempo, por lo que se establece la presencia de no-linealidad en los retornos.
         
 \textbf{Forma fuerte:} En esta definición, tanto la información pública como privada se ve reflejada en los precios, por lo que no se le puede sacar provecho a la información disponible, ni a las noticias futuras.
         
 En este caso el termino aleatorio  
-$$\epsilon_t \sim IID(0,\sigma^2)|F_t$$
-Lo que signifia que $\epsilon_t$ proviene de una misma distribución y que cada observación en el tiempo es independiente tanto del pasado como de futuro   
+$$\varepsilon_t \sim IID(0,\sigma^2)|F_t$$
+Lo que signifia que $\varepsilon_t$ proviene de una misma distribución y que cada observación en el tiempo es independiente tanto del pasado como del futuro. 
   
   
   2. Suponga que los directores ejecutivos de Ecopetrol (quienes tienen acciones de la empresa y las transan en bolsa) obtienen rendimientos anormalmente altos en las acciones de su propia empresa. ¿Esto invalidaría la hipótesis de mercados eficientes?
@@ -53,11 +54,13 @@ Lo que signifia que $\epsilon_t$ proviene de una misma distribución y que cada 
 
   4. Si el mercado es eficiente, ¿cuál es el rendimiento esperado para un activo en ese mercado?
         
-  El rendimiento de un activo en el mercado se puede definir como $R_t=\mu_t + \varepsilon_t$, donde $\mu_t=E[R_t]$ es la prima por riesgo del mercado en un momento \textit{t}, y $\varepsilon_t$ es el componente aleatorio del rendimiento.
+  El rendimiento de un activo en el mercado se puede definir como $R_t=\mu_t + \varepsilon_t$, donde $\mu_t$ es la prima por riesgo del mercado en un momento \textit{t}, y $\varepsilon_t$ es la componente aleatorio del rendimiento.
         
-  Como la media del proceso ($\mu$) o prima por riesgo esta formada a través de expectativas racionales, se puede predecir y dependerá de la valoración del riesgo hacia la contra parte, por lo que el valor esperado de este componente puede ser o no 0 dependiendo de la información que dispongan los inversionistas y el tipo de activo, por ejemplo, bajo la hipótesis fuerte, al tener información completa sobre el presente y las noticias futuras este componente sería igual a 0.
+  Como la media del proceso ($\mu$) está formada por expectativas racionales, se puede predecir y dependerá de la valoración del riesgo hacia la contraparte. Por lo tanto, el valor esperado de este componente puede ser o no cero, dependiendo de la información que dispongan los inversionistas y el tipo de activo que se transe en el mercado. Particularmente, bajo la hipótesis fuerte de mercados eficientes, al tenerse información completa sobre el presente y las noticias futuras esta componente debe ser cero.
         
-  Sin embargo, el valor esperado de los rendimientos de un activo descontadas las primas por riesgo será 0 sin importar la hipótesis bajo la cual se este evaluando la eficiencia del mercado.
+  Por otra parte, el valor esperado de los rendimientos de un activo descontadas las primas por riesgo será cero sin importar la hipótesis bajo la cual se esté evaluando la eficiencia del mercado, i.e., $E[\varepsilon_t|F_{t-1}]=0$ donde $F_{t-1}$ puede ser cualquier conjunto de información (histórica, pública o privada).
+  
+  En conclusión, para un mercado eficiente, el rendimiento esperado debe ser nulo.
 
   5. Suponga que un inversionista ha descubierto que la raíz cuadrada de cualquier precio de acción multiplicada por el día del mes proporciona un indicador de la dirección en el movimiento del precio de esa acción en particular con una probabilidad del 75\%. ¿En este caso se estaría violando la hipótesis de mercado eficiente?
         
@@ -74,8 +77,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca); library(timeDate); library(TSstudio); library(fBasics); library(randtests); library(vrtest)
 ```
 
-  En primer lugar, obtenemos los datos de precios de cierre de los últimos 5 años S\&P500 Index de Yahoo Finance según las frecuencias requeridas, es decir, diaria, mensual y semanal.
-
 ```{r , message=FALSE, warning=FALSE, results='hide'}
 getSymbols('^FTSE',from = "1985-01-01", to = "2021-04-29", periodicity = "daily")
 UK_d_p <-Cl(FTSE)
@@ -83,7 +84,7 @@ getSymbols('^FTSE', from = "1985-01-01", to = "2021-04-29", periodicity = "month
 UK_m_p <-Cl(FTSE)
 ```
 
-  Luego, procedemos a calcular los retornos continuos de los precios para cada serie.
+  Luego de obtener datos diarios y mensuales del \textbf{FTSE100}, procedemos a calcular los retornos continuos de los precios para cada serie.
 
 ```{r}
 UK_d_r <- data.frame(apply(UK_d_p, 2, function(x) Delt(x, type = "log")),
@@ -108,9 +109,9 @@ ggplot(UK_m_r)+geom_line(aes(fecha, FTSE.Close))+ggtitle("Log-retornos mensuales
 nrow= 2)
 ```
 
-Tanto para los retornos diarios como mensuales se observa que el valor de la desviación estándar es mayor al valor medio, por lo que la volatilidad de los retornos domina el comportamiento dinámico de la serie, además, con los valores asociados a la asimetría y curtosis, se puede deducir que las series son negativamente asimétricas y leptocúrticas, por lo que existe una mayor probabilidad de obtener retornos positivos, los cuales se encuentran concetrados en su valor medio.
+Tanto para los retornos diarios como mensuales se observa que el valor de la desviación estándar es mayor al valor medio cercano a cero, por lo que la volatilidad de los retornos domina el comportamiento dinámico de la serie. Además, con los valores asociados a la asimetría y curtosis, se puede deducir que las series son negativamente asimétricas y leptocúrticas, por lo que existe una mayor probabilidad de obtener retornos positivos, los cuales se encuentran concetrados en su valor medio.
 
-```{r echo=FALSE}
+```{r echo=FALSE, caption='Estadística descriptiva.'}
 UK_d_r<-UK_d_r[,1]; UK_m_r<-UK_m_r[,1]
 stats_d<-basicStats(UK_d_r)[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
 stats_m<-basicStats(UK_m_r)[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
@@ -120,8 +121,9 @@ colnames(stats)<-c('Daily', 'Monthly')
 knitr::kable(stats)
 ```
 
-Los hechos mencionados anteriormente se confirman al observar la distribución de las series, donde se observa que los datos se encuentran altamente concentrados al rededor de la media en comparación a una distribución normal y existe una mayor probabilidad de ocurrencia de datos atípicos, comportamiento representado en las colas pesadas de la distribución.
-```{r echo=FALSE, fig.pos='h'}
+Los hechos mencionados anteriormente se confirman al observar la distribución de las series, donde se observa que los datos se encuentran altamente concentrados alrededor de la media en comparación a una distribución normal, y existe una mayor probabilidad de ocurrencia de datos atípicos que se refleja en las colas pesadas de su distribución.
+
+```{r echo=FALSE, fig.pos='h', out.height='5in'}
 hist(UK_d_r, freq=F, breaks=365, main = 'Histograma de Log-retornos diarios', xlab = '')
 lines(density(UK_d_r), col="red", )
 lines(seq(min(UK_d_r), max(UK_d_r), length=length(UK_d_r)), dnorm(seq(min(UK_d_r), max(UK_d_r), length=length(UK_d_r)), mean(UK_d_r), sd(UK_d_r)), col="blue")
@@ -131,95 +133,107 @@ lines(seq(min(UK_m_r), max(UK_m_r), length=length(UK_m_r)), dnorm(seq(min(UK_m_r
 
 ```
 
-Finalmente, aunque la serie diaria y mensual cumplen los hechos estilizados que caracterizan el comportamiento de las series financieras, al compararlas se identifica que con el aumento de la periodicidad, estas características se van volviendo más débiles y la distribución se va asemejando a la normal, perdiendo su apariencia leptocurtica, asimétrica negativa y volatilidad, comportamiento que se genera gracias al teorema del límite central.   
+Finalmente, si bien las series diaria y mensual cumplen los hechos estilizados que caracterizan el comportamiento de las series financieras, al compararlas se identifica que con la disminución de la frecuencia en la periodicidad, estas características se van volviendo más débiles y la distribución tiende a asemejarse a la normal, perdiendo su volatilidad, apariencia leptocúrtica y asimétrica negativa, comportamiento que se genera gracias al teorema del límite central.   
   
   2. ¿Es el mercado accionario elegido eficiente? Use diferentes horizontes de tiempo y pruebe la hipótesis considerando sus diferentes formas. Discuta los resultados.
 
-Bajo la hipótesis débil de mercados eficientes, si los retornos no son predecibles, entonces deberian comportarse como ruido blanco y por tanto no debería existir correlaciones de los retornos entre el momento $t$ y $t-k$  
+Bajo la hipótesis débil de mercados eficientes (\textit{RW3}), si los retornos no son predecibles, entonces deberían comportarse como ruido blanco y por tanto no debería existir correlaciones de los retornos entre el momento $t$ y $t-k$  
 
 $H_0: r_t \sim WN \rightarrow \rho_k =0  \forall k$
 
+Al observar el gráfico de autocorrelación (ACF) para los retornos diarios, se presentan varios rezagos significativos, sin embargo, es necesario verificar si los retornos se correlacionan serialmente con el uso de tests estadísticos adicionales. En cuanto a los retornos mensuales, no se observan retornos significativos, lo cual es coherente con el comportamiento del mercado financiero, pues no se esperaría que la información lejana tuviera impacto sobre los precios actuales.
 
-Al observar el grafico de autocorrelación (ACF) para los retornos diarios, se observa que existen varios rezagos significativos, sin embargo, se requieren de los otros test para verificar si los retornos se correlacionan serialmente, por otro lado, en cuanto a los retornos mensuales, no se observan retornos significativos lo cual es coherente con el comporamiento del mercado financiero, pues no se espararía que la información lejana tuviera impacto sobre los precios actuales.   
-
-
-```{r}
-############### IID (RW1) => MARTINGALE DIFFERENCE (RW2) => WHITE NOISE (RW3)
-
-###### Testing RW3 
+```{r, warning=FALSE, out.height='5in'}
 grid.arrange(
-ggAcf(UK_d_r, main= "ACF retornos diarios"),
-ggAcf(UK_m_r, main= "ACF retornos mensuales"),
+ggAcf(UK_d_r, lag.max = 100, main= "ACF retornos diarios"),
+ggAcf(UK_m_r, lag.max = 50, main= "ACF retornos mensuales"),
 ncol=2)
 ```
 
+Para los test de Ljung-Box y Box-Pierce las hipotesis se pueden resumir en:
+
+\begin{center}
+$H_o:$ No autocorrelación serial de los retornos.
+$H_1:$ Presencia de correlación serial.
+\end{center}
+
+De las 2 pruebas se concluye que existe correlación serial para los retornos diarios  desde el tercer rezago (aproximadamente), por lo que el comportamiento pasado presenta una relación lineal de los retornos futuros, entonces, no hay evidencia para demostrar el cumpliento de la hipótesis debil de eficiencia del mercado.
+
+```{r, echo = FALSE}
+lj_d<-list(
+Box.test(UK_d_r, lag = 1, type = c("Ljung-Box"), fitdf = 0)[["p.value"]] ,
+Box.test(UK_d_r, lag = 4, type = c("Ljung-Box"), fitdf = 0)[["p.value"]] ,
+Box.test(UK_d_r, lag = 8, type = c("Ljung-Box"), fitdf = 0)[["p.value"]] ,
+Box.test(UK_d_r, lag = 12, type = c("Ljung-Box"), fitdf = 0)[["p.value"]] )
 
 
-Para los test de Jung-Box y Box-Pierce las hipotesis se pueden resumir en:
-$H_o:$ No autocorrelación serial de los retornos
-$H_1:$ Presencia de correlación serial
+bp_d<-list(
+Box.test(UK_d_r, lag = 1, type = c("Box-Pierce"), fitdf = 0)[["p.value"]],
+Box.test(UK_d_r, lag = 4, type = c("Box-Pierce"), fitdf = 0)[["p.value"]],
+Box.test(UK_d_r, lag = 8, type = c("Box-Pierce"), fitdf = 0)[["p.value"]],
+Box.test(UK_d_r, lag = 12, type = c("Box-Pierce"), fitdf = 0)[["p.value"]] )
 
-De las 2 pruebas se concluye que existe correlación serial para los retornos diarios  desde el tercer rezago aproximadamente, por lo que el comportamiento pasado presenta una relación lineal de los retornos futuros, y no habría evidencia para demostrar el cumpliento de la hipótesis debil de eficiencia del mercado.
-
-
-
-```{r}
-
-Box.test(UK_d_r, lag = 1, type = c("Ljung-Box"), fitdf = 0) 
-Box.test(UK_d_r, lag = 4, type = c("Ljung-Box"), fitdf = 0) 
-Box.test(UK_d_r, lag = 8, type = c("Ljung-Box"), fitdf = 0) 
-Box.test(UK_d_r, lag = 12, type = c("Ljung-Box"), fitdf = 0) 
-
-
-Box.test(UK_d_r, lag = 1, type = c("Box-Pierce"), fitdf = 0)
-Box.test(UK_d_r, lag = 4, type = c("Box-Pierce"), fitdf = 0)
-Box.test(UK_d_r, lag = 8, type = c("Box-Pierce"), fitdf = 0)
-Box.test(UK_d_r, lag = 12, type = c("Box-Pierce"), fitdf = 0)
-
-
+test_d<-cbind(c(1,4,8,12),lj_d, bp_d)
+colnames(test_d)<-c("Lag","Ljung-Box test","Box-Pierce test")
+knitr::kable(test_d)
 ```
 
 Por otro lado, consecuente con los gráficos de autocorrelación, los retornos mensuales no presentan una estructura de autocorrelación serial a la luz de los test de Ljung-Box y Box-Pierce.
 
 
-```{r}
-############### IID (RW1) => MARTINGALE DIFFERENCE (RW2) => WHITE NOISE (RW3)
+```{r, echo = FALSE}
+lj_m<-list(
+Box.test(UK_m_r, lag = 1, type = c("Ljung-Box"), fitdf = 0)[["p.value"]] ,
+Box.test(UK_m_r, lag = 4, type = c("Ljung-Box"), fitdf = 0)[["p.value"]] ,
+Box.test(UK_m_r, lag = 8, type = c("Ljung-Box"), fitdf = 0)[["p.value"]] ,
+Box.test(UK_m_r, lag = 12, type = c("Ljung-Box"), fitdf = 0)[["p.value"]] )
 
-###### Testing RW3 
 
-Box.test(UK_m_r, lag = 1, type = c("Ljung-Box"), fitdf = 0)
-Box.test(UK_m_r, lag = 4, type = c("Ljung-Box"), fitdf = 0)
-Box.test(UK_m_r, lag = 8, type = c("Ljung-Box"), fitdf = 0)
-Box.test(UK_m_r, lag = 12, type = c("Ljung-Box"), fitdf = 0)     
-         
-         
-Box.test(UK_m_r, lag = 1, type = c("Box-Pierce"), fitdf = 0)
-Box.test(UK_m_r, lag = 4, type = c("Box-Pierce"), fitdf = 0)
-Box.test(UK_m_r, lag = 8, type = c("Box-Pierce"), fitdf = 0)
-Box.test(UK_m_r, lag = 12, type = c("Box-Pierce"), fitdf = 0)
+bp_m<-list(
+Box.test(UK_m_r, lag = 1, type = c("Box-Pierce"), fitdf = 0)[["p.value"]],
+Box.test(UK_m_r, lag = 4, type = c("Box-Pierce"), fitdf = 0)[["p.value"]],
+Box.test(UK_m_r, lag = 8, type = c("Box-Pierce"), fitdf = 0)[["p.value"]],
+Box.test(UK_m_r, lag = 12, type = c("Box-Pierce"), fitdf = 0)[["p.value"]] )
+
+test_m<-cbind(c(1,4,8,12),lj_m, bp_m)
+colnames(test_m)<-c("Lag","Ljung-Box test","Box-Pierce test")
+knitr::kable(test_m)
 ```
-Finalmente, para la hipótesis débil de mercados eficientes se cuenta con el test no paramétrico de von Neumann para aleatoriedad, que concluye que tanto los retornos diarios como mensuales presentan un comportamiento aleatorio
+
+Finalmente, para la hipótesis débil de mercados eficientes se cuenta con el test de Von Neumann para aleatoriedad robusto a volatilidad, que tiene las siguientes hipótesis de prueba:
+
+\begin{center}
+$H_o:$ Aleatoriedad.
+$H_1:$ No aleatoriedad.
+\end{center}
+
+Por lo tanto, se concluye que los retornos mensuales y diarios se comportan de manera aleatoria.
+
 ```{r}
 bartels.rank.test(UK_d_r, pvalue="normal")
 bartels.rank.test(UK_m_r, pvalue="normal")
 ```
-Por otro lado, para testear la hipótesis fuerte de mercados eficiente se realiza el test de razon de varianzas considerando la homocedasticidad (M1) y heterocedaticidad (M2) de los retornos
 
+Por otro lado, para testear la hipótesis fuerte de mercados eficientes (\textit{RW1}) para corto plazo se realiza el test de razón de varianzas, considerando la homocedasticidad (M1) y heterocedaticidad (M2) de los retornos. Así, se observa que hasta para 200 rezagos, los retornos diarios y mensuales tienen razón de varianza estadísticamente igual a uno, es decir, son independientes e idénticamente distribuidos y se cumple la hipótesis fuerte de mercados eficientes.
 
-```{r}
-
-###### Testing RW1 
-Lo.Mac(UK_d_r, c(2,50,200)) # it checks whether the VR = 1 for a given k to see whether the series is a random walk (which is the null hypothesis).
-
-# M1 is the Lo.Mac statistic under the homoscedastic assumption. M2 is the Lo.Mac statistic under the heteroscedastic assumption. Better to look at M2 than M1 as M2 is based on a more realistic assumption. M1 and M2 are assumed to follow a normal distribution. So if M1 or M2 is greater than 1.96, you can reject the null hypothesis at 5% significant level.
-
-###### Testing RW1 
-Lo.Mac(UK_m_r, c(2,50,150)) # it checks whether the VR = 1 for a given k to see whether the series is a random walk (which is the null hypothesis).
-
-# M1 is the Lo.Mac statistic under the homoscedastic assumption. M2 is the Lo.Mac statistic under the heteroscedastic assumption. Better to look at M2 than M1 as M2 is based on a more realistic assumption. M1 and M2 are assumed to follow a normal distribution. So if M1 or M2 is greater than 1.96, you can reject the null hypothesis at 5% significant level.
+```{r, echo=FALSE, caption='Diarios'}
+knitr::kable(Lo.Mac(UK_d_r, c(2,50,200))$Stats)
 ```
 
+```{r, echo=FALSE , caption='Mensuales'}
+knitr::kable(Lo.Mac(UK_m_r, c(2,50,200))$Stats)
+```
 
+Ahora, para observar la convergencia de la razón varianza de los retornos, realizamos la gráfica acumulativa de esta varianza para retornos diarios y mensuales con sus respectivos intervalos de confianza, dicha gráfica arroja resultados positivos para los retornos mensuales, así, los retornos convergen a su media a corto y largo plazo. En el caso de los retornos los diarios, se puede concluir que solo después de varios periodos su razón de varianza disminuye, por lo que los retornos no se alejan demasiado de su media en el largo plazo.
 
+```{r, fig.pos='h', out.height='4in', results='hide'}
+VR.plot(UK_d_r,c(2,50,200))
+VR.plot(UK_m_r,c(2,50,200))
+```
 
+Para la prueba de hipótesis semifuerte de mercados eficientes (\textit{RW2.5}), donde se requiere observar si los retornos se ccomportan como Diferencia Martingala, se realiza la prueba Domínguez-Lobato.
+
+```{r}
+DL.test(UK_m_r, B = 10)
+```
 
