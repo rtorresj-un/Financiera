@@ -1,6 +1,6 @@
 # Packages
 library(zoo); library(sandwich); library(gmm); library(data.table); library(stargazer)
-library(ggplot2); library(ggthemes); library(PerformanceAnalytics); library(dplyr); library(plm)
+library(ggplot2); library(PerformanceAnalytics); library(dplyr); library(plm)
 # Data set contains daily returns of twenty selected stocks from January 1993 to February 2009, the risk-free rate and the three factors of Fama and French 
 data(Finance)
 df<-Finance
@@ -21,7 +21,7 @@ stargazer(TSR, type = 'text') #beta significativo y alpha no significativo.
 ggplot(pf_m, aes(x = I(rm-rf),y = er.V1-rf))+
   geom_point()+geom_abline(slope = coef(TSR)[[2]], intercept = coef(TSR)[[1]], color="firebrick")+
   theme_minimal() +
-  ggtitle("") + xlab("Exceso de retorno esperado del mercado") + ylab("Exceso de retorno esperado")
+  xlab("Exceso de retorno esperado del mercado") + ylab("Exceso de retorno esperado")
 
 #Regresiones de corte transversal
 df_2<-df
