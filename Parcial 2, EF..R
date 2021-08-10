@@ -78,6 +78,9 @@ for(i in 1:100){
 data_2step<-NULL
 data_2step<-data.table(er_bar, beta_t)
 reg_2step<-lm(er_bar~beta_t, data = data_2step)
+
+rf<-GroupData_temp$rf
+reg_22step<-lm(er_bar-rf~beta_t, data = data_2step)
 summary(reg_2step)
 stargazer(reg_2step)
 
@@ -96,16 +99,26 @@ GroupData<-GroupData[,1:3]
 GroupData["er"]<-group_er
 
 er_bar<- NULL
+er_rm<-NULL
+er_f<- NULL
 beta_t<-NULL
 for(i in 1:16){
   er_temp<-filter(GroupData, Date==1992+i)[,4]
+  er_temp_m<-filter(GroupData, Date==1992+i)[,3]
+  er_temp_f<-filter(GroupData, Date==1992+i)[,2]
+  
   er_bar[i]<-mean(as.matrix(er_temp))
+  er_rm[i]<-mean(as.matrix(er_temp_m))
+  er_f[i]<-mean(as.matrix(er_temp_f))
+  
   temp_reg<-lm(er-rf ~ I(rm-rf), data = GroupData%>%filter(Date==1992+i))
   beta_t[i]<-coef(temp_reg)[[2]]
 }
 
-data_2step<-data.table(Date= seq(1993,1, to = 2009), er_bar,beta_t)
+data_2step<-data.table(Date= seq(1993,1, to = 2009),er_rm,er_f, er_bar,beta_t)
 data_2step$Date<-as.factor(data_2step$Date)
+
+reg_1step<-lm(er_bar-er_f~I(er_rm-er_f), data = data_2step)
 reg_2step<-lm(er_bar~beta_t, data = data_2step)
 
 summary(reg_2step)
