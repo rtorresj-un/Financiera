@@ -2,8 +2,8 @@
 title: "Parcial 1 - Econometría Financiera"
 subtitle: Raúl Esteban Torres Jiménez & Juanita Cortés Arroyo
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 ---
 
 * Sustente y explique su respuesta frente a las siguientes preguntas.
@@ -231,9 +231,5 @@ VR.plot(UK_d_r,c(2,50,200))
 VR.plot(UK_m_r,c(2,50,200))
 ```
 
-Para la prueba de hipótesis semifuerte de mercados eficientes (\textit{RW2.5}), donde se requiere observar si los retornos se ccomportan como Diferencia Martingala, se realiza la prueba Domínguez-Lobato.
 
-```{r}
-DL.test(UK_m_r, B = 10)
-```
 
