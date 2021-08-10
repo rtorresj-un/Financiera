@@ -131,8 +131,22 @@ theme_minimal() + geom_text(aes(label=Date),hjust=0, vjust=0) +
 ggtitle("") + xlab("Beta estimado") + ylab("Retorno promedio")
 
 #3####
-df_3<-xts(Finance[,c(21,22,2,3,4,5)], order.by = as.Date(row.names(Finance), format = "%Y-%m-%d"))
-df_3<-period.apply(df_3,endpoints(df_3,on = 'years'),mean)
+df_3<-xts(Finance[,c(21,22,1,2,3,4)], order.by = as.Date(row.names(Finance), format = "%Y-%m-%d"))
+df_3<-period.apply(df_3,endpoints(df_3[,],on = 'years'),mean)
+
+pf3<-df_3[,c(2:6)]
+weights1<-rbind(.25, .25, .2, .2, .1)
+pf_m3<-data.table(as.matrix(pf3)%*%weights1)
+pf_m3<-data.table(er = pf_m3, rm = pf3$rm, rf = df$rf)
+#Regresión de serie de tiempo
+TSR<- lm(er.V1-rf~ I(rm-rf), data = pf_m)
+summary(TSR)
+stargazer(TSR, type = 'text') #beta significativo y alpha no significativo.
+
+ggplot(pf_m, aes(x = I(rm-rf),y = er.V1-rf))+
+  geom_point()+geom_abline(slope = coef(TSR)[[2]], intercept = coef(TSR)[[1]], color="firebrick")+
+  theme_minimal() +
+  xlab("Exceso de retorno esperado del mercado") + ylab("Exceso de retorno esperado")
 
 er_bar3<- NULL
 beta_t3<-NULL
