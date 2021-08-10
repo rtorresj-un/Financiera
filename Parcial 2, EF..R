@@ -130,7 +130,7 @@ geom_point()+geom_abline(slope = coef(reg_2step)[[2]], intercept = coef(reg_2ste
 theme_minimal() + geom_text(aes(label=Date),hjust=0, vjust=0) +
 ggtitle("") + xlab("Beta estimado") + ylab("Retorno promedio")
 
-#3####
+#3#### 
 df_3<-xts(Finance[,c(21,22,1,2,3,4)], order.by = as.Date(row.names(Finance), format = "%Y-%m-%d"))
 df_3<-period.apply(df_3,endpoints(df_3[,],on = 'years'),mean)
 
