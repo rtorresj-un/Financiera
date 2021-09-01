@@ -1,0 +1,19 @@
+---
+title: "Parcial 3 - Econometría Financiera"
+subtitle: "Raúl Esteban Torres Jiménez & Juanita Cortés Arroyo"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+Supongan que ustedes son analistas del mercado financiero en una entidad privada que invierte en Bolsa. Con el fin de guiar su política de inversión, la mesa de dinero requiere un análisis del comportamiento de la tasa de cambio del dólar americano USD frente a un conjunto de monedas del mundo: euro, yen japones, libra esterlina, dólar canadiense, dólar australiano, franco suizo, peso mexicano, peso colombiano y real brasileño (disponibles en https://finance.yahoo.com/). En consecuencia, le piden que realice un análisis incluyendo datos diarios desde enero de 2005 y hasta agosto del 2021 el cual debe dar cuenta de:
+
+  a. Estadística descriptiva (Además de otros análisis calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa.)
+  b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
+  c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
+  d. Pronóstico de la volatilidad a 10 días.
+  e. Cuál es la probabilidad de tener pérdidas con el 99% de confianza en un horizonte de día (use los resultados de su modelación para el cálculo).
+  f. ¿Cambió la pandemia del COVID-19 la estructura de la volatilidad de la tasa de cambio? (para eso use datos desde enero del 2018).
+
+Nota: Se espera que cada grupo ELIJA UNA TASA DE CAMBIO DIFERENTE, y presente un informe ejecutivo de no más de 10 páginas, en el que de respuesta a cada pregunta y presente los argumentos empíricos necesarios que la sustenten. Explique sus resultados e interprételos.
+
