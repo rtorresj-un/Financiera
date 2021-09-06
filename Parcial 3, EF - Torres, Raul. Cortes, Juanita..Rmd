@@ -88,45 +88,46 @@ chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, m
 ```
 
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
-<<<<<<< HEAD
-```{r echo=FALSE,caption='Media condicional.'}
+```{r echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center", fig.show='hide'}
 # media incondicional 
-dataSMA.EMA=merge.xts('Retornos'=jp_r, 'Media móvil simple'= SMA(jp_r), 'Media móvil exponencial'= EMA(jp_r), fill = 'NA')
+#dataSMA.EMA=merge.xts('Retornos'=jp_r, 'Media móvil simple'= SMA(jp_r), 'Media móvil exponencial'= EMA(jp_r), fill = 'NA')
 #ggplot(data = dataSMA.EMA, aes(x = index(dataSMA.EMA))) + 
 #  geom_line(aes(y= Retornos, color='Retornos')) +
 #  geom_line(aes(y= SMA, color='SMA')) +
 #  geom_line(aes(y= EMA, color='EMA')) +
 #  labs(x = "Fecha",y = "", color = "") + theme_minimal()
-chart.TimeSeries(dataSMA.EMA, lwd = 1, legend.loc = "topright", colorset = c('grey',"darkgreen","firebrick"))
+#chart.TimeSeries(dataSMA.EMA, lwd = 1, legend.loc = "topright", colorset = #c('grey',"darkgreen","firebrick"))
+#lines(SMA(Cl(na.omit(jp)), n = 200), col = "darkgreen")
+#lines(EMA(Cl(na.omit(jp)), n = 200), col = "firebrick")
+
+# media incondicional
+plot(na.omit(jp), main= "Media movil y exponencial USD/JPY.")
 lines(SMA(Cl(na.omit(jp)), n = 200), col = "darkgreen")
 lines(EMA(Cl(na.omit(jp)), n = 200), col = "firebrick")
-=======
-```{r echo=FALSE,caption='Media condicional .',fig.pos='h',fig.height = 3, fig.width = 5, fig.align = "center",message=FALSE}
-# media incondicional 
-plot.new()
-lines(SMA(Cl(na.omit(jp)), n = 200), col = "red")
+#Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
+```
+```{r echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
 lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
->>>>>>> da7cead49dbe21a24b2501717277f254beda49d9
-#Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
 
-```{r echo= FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
+
+```{r echo= FALSE, fig.height = 3, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',fig.show= 'hide'}
 # medias moviles retornos
-#ret=na.omit(diff(log(jp$`USDJPY=X.Close`), lag=1))
-#lines(SMA(ret, n = 100), col = "red")
-#lines(EMA(ret, n = 100), col = "green")
+plot(jp_r, main= "Media movil y exponencial de retornos USD/JPY")
+lines(SMA(jp_r, n = 100), col = "red")
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
+```{r echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
+lines(EMA(jp_r, n = 100), col = "green")
+```
 
-
-  
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
   
 ```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
-rets<- ts(jp_r)
-ggAcf(rets,52)+ggtitle("Autocorrelación retornos diarios")
-ggAcf(rets,52, type= "partial")+ggtitle("Autocorrelación retornos diarios")
-
+grid.arrange(
+ggAcf(jp_r,52)+ggtitle("Retornos diarios"),
+ggPacf(jp_r,52)
+)
 ```
 
 ```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
