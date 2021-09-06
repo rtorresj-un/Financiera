@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r, include=FALSE}
-library(quantmod); library(PerformanceAnalytics); library(rugarch)
+library(quantmod); library(PerformanceAnalytics); library(rugarch); library(dplyr)
 library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca); library(timeDate); library(TSstudio); library(fBasics); library(randtests); library(vrtest)
 
 getSymbols('USDJPY=X',from = "2005-01-01", to = "2021-08-31", periodicity = "daily")
@@ -15,6 +15,7 @@ jp <-Cl(`USDJPY=X`)
 
 jp_r <- data.frame(apply(jp, 2, function(x) Delt(x, type = "log")), fecha = index(jp))
 jp_r<-na.omit(jp_r)
+jp_r<-as.xts(jp_r, order.by = jp_r$fecha)[,1]
 ```
 
 Supongan que ustedes son analistas del mercado financiero en una entidad privada que invierte en Bolsa. Con el fin de guiar su política de inversión, la mesa de dinero requiere un análisis del comportamiento de la tasa de cambio del dólar americano USD frente a un conjunto de monedas del mundo: euro, yen japones, libra esterlina, dólar canadiense, dólar australiano, franco suizo, peso mexicano, peso colombiano y real brasileño (disponibles en https://finance.yahoo.com/). En consecuencia, le piden que realice un análisis incluyendo datos diarios desde enero de 2005 y hasta agosto del 2021 el cual debe dar cuenta de:
@@ -22,14 +23,27 @@ Supongan que ustedes son analistas del mercado financiero en una entidad privada
   a. Estadística descriptiva (Además de otros análisis calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa.)
 
 ```{r echo=FALSE, caption='Estadística descriptiva.'}
-jp_r<-jp_r[,1]
-stats_d<-basicStats(jp_r)[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
+stats_d<-table.Stats(as.numeric(jp_r[,1]))[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
+
+#En tabla:
 stats<-data.frame(stats_d)
 row.names(stats)<-c("Mean", "SD", "Minimum", "Maximum", "Variance","Skewness","Kurtosis")
 colnames(stats)<-c('USD/JPY')
 knitr::kable(stats)
 ```
 
+```{r}
+chart_Series(jp)
+jp_r08<-jp_r %>% filter(index(jp_r)>as.Date('2008-01-21')&&index(jp_r)>as.Date('2013-12-21'))
+rollapply()
+chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
+#Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
+```
+
+```{r}
+chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
+#Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
+```
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
   d. Pronóstico de la volatilidad a 10 días.
