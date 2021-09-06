@@ -76,9 +76,9 @@ knitr::kable(stats)
 
 ```{r}
 #chart.TimeSeries(jp)
-jp_r08<-jp_r %>% filter(index(jp_r)>as.Date('2008-01-21')&&index(jp_r)<as.Date('2013-12-21'))
-rollapply(jp_r)
-chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
+jp_r08<-window(jp_r, start='2008-01-21', end='2009-12-31')
+#rollapply(jp_r)
+chart.RollingPerformance(jp_r08, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
 #Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
 ```
 
@@ -89,9 +89,9 @@ chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, m
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
 ```{r echo=FALSE,caption='Media condicional .'}
 # media incondicional 
-#lines(SMA(Cl(na.omit(jp)), n = 200), col = "red")
-#lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
-
+lines(SMA(Cl(na.omit(jp)), n = 200), col = "red")
+lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
+#Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
 
 ```{r echo= FALSE}
@@ -99,7 +99,7 @@ chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, m
 #ret=na.omit(diff(log(jp$`USDJPY=X.Close`), lag=1))
 #lines(SMA(ret, n = 100), col = "red")
 #lines(EMA(ret, n = 100), col = "green")
-
+#Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
 
 
