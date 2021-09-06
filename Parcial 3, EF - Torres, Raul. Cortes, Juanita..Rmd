@@ -17,7 +17,7 @@ jp <-Cl(`USDJPY=X`)
 
 jp_r <- data.frame(apply(jp, 2, function(x) Delt(x, type = "log")), fecha = index(jp))
 jp_r<-na.omit(jp_r)
-jp_r<-as.xts(jp_r, order.by = jp_r$fecha)[,1]
+jp_r<-xts(jp_r[,1], order.by = jp_r$fecha)
 ```
 
 Supongan que ustedes son analistas del mercado financiero en una entidad privada que invierte en Bolsa. Con el fin de guiar su política de inversión, la mesa de dinero requiere un análisis del comportamiento de la tasa de cambio del dólar americano USD frente a un conjunto de monedas del mundo: euro, yen japones, libra esterlina, dólar canadiense, dólar australiano, franco suizo, peso mexicano, peso colombiano y real brasileño (disponibles en https://finance.yahoo.com/). En consecuencia, le piden que realice un análisis incluyendo datos diarios desde enero de 2005 y hasta agosto del 2021 el cual debe dar cuenta de:
@@ -28,32 +28,46 @@ Se presenta la gráfica de la tasa de cambio del dolar americado \textbf{USD} fr
 
 ```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
 knitr::opts_chunk$set(fig.width=4) 
-ggplot(data = jp, aes(y = `USDJPY=X.Close`, x = index(jp))) + geom_line()+ggtitle("Tasa de cambio USD-JPY")+ labs(x = "Fecha",y = "USD/JPY") 
-
+ggplot(data = jp, aes(y = jp, x = index(jp))) + geom_line()+ggtitle("Tasa de cambio USD/JPY")+ labs(x = "Fecha",y = "USD/JPY") 
 ```
 
 ```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
 # plot retornos diarios 
-ggplot(data = jp_r, aes(y = USDJPY.X.Close, x = fecha)) + geom_line()+ggtitle("Retornos diarios USD/JPY")+ labs(x = "Fecha",y = " Retornos USD/JPY") 
-ggplot(data = jp_r, aes(USDJPY.X.Close)) +geom_histogram(bins = 200)+ggtitle("Distrubución retornos diarios")+ labs(x = " ",y = " ") 
-
+grid.arrange(
+ggplot(data = jp_r, aes(y = jp_r[,1], x = index(jp_r))) + geom_line()+ggtitle("Retornos diarios USD/JPY")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggplot(data = jp_r, aes(y=..density.., x = jp_r[,1])) +
+  geom_histogram(bins = 200) +
+  ggtitle("Distrubución retornos diarios") +
+  geom_vline(aes(xintercept=mean(jp_r)), linetype="dashed") +
+  geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') +theme_minimal()
+)
 ```
+
 ```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
 #retornos ^2 distribucion y grafico
-ggplot(data = jp_r, aes(y = (USDJPY.X.Close)^2, x = fecha)) + geom_line()+ggtitle("Volatilidad retornos USD/JPY")+ labs(x = "Fecha",y = "volatilidad retornos USD/JPY") 
-ggplot(data = jp_r, aes((USDJPY.X.Close)^2)) +geom_histogram(bins = 200) +ggtitle("Distribución volatilidad retornos USD/JPY")+ labs(x = "",y = "") 
+grid.arrange(
+ggplot(data = jp_r, aes(y = jp_r^2, x = index(jp_r))) + 
+  geom_line() +
+  ggtitle("Volatilidad retornos USD/JPY") + 
+  labs(x = "Fecha",y = "") + theme_minimal(),
+ggplot(data = jp_r, aes(y=..density.., x = jp_r^2)) +
+  geom_histogram(bins = 200) +
+  ggtitle("Distrubución retornos diarios") +
+  geom_vline(aes(xintercept=mean(jp_r)), linetype="dashed") +
+  geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') + theme_minimal()
+)
 ```
 
-
 ```{r echo=FALSE, caption='Estadística descriptiva.'}
-stats_d<-table.Stats(as.numeric(jp_r[,1]))[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
+stats_d<-basicStats(jp_r[,1])[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
 
 #En tabla:
 stats<-data.frame(stats_d)
 row.names(stats)<-c("Mean", "SD", "Minimum", "Maximum", "Variance","Skewness","Kurtosis")
-colnames(stats)<-c(' USD/JPY')
+colnames(stats)<-c('USD/JPY')
 knitr::kable(stats)
 ```
+
 ```{r echo=FALSE}
 #calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa 
 #chart.RollingPerformance(ret, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
@@ -61,9 +75,9 @@ knitr::kable(stats)
 ```
 
 ```{r}
-chart_Series(jp)
-jp_r08<-jp_r %>% filter(index(jp_r)>as.Date('2008-01-21')&&index(jp_r)>as.Date('2013-12-21'))
-rollapply()
+#chart.TimeSeries(jp)
+jp_r08<-jp_r %>% filter(index(jp_r)>as.Date('2008-01-21')&&index(jp_r)<as.Date('2013-12-21'))
+rollapply(jp_r)
 chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
 #Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
 ```
