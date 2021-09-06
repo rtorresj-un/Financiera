@@ -26,12 +26,12 @@ Supongan que ustedes son analistas del mercado financiero en una entidad privada
   
 Se presenta la gráfica de la tasa de cambio del dolar americado \textbf{USD} frente al Yen japones \textbf{JPY}
 
-```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
+```{r echo=FALSE ,message=FALSE ,fig.height = 3, fig.width = 5, fig.align = "center", fig.pos='h'}
 knitr::opts_chunk$set(fig.width=4) 
 ggplot(data = jp, aes(y = jp, x = index(jp))) + geom_line()+ggtitle("Tasa de cambio USD/JPY")+ labs(x = "Fecha",y = "USD/JPY") 
 ```
 
-```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
+```{r echo=FALSE, fig.height = 4, fig.width = 5, fig.align = "center", message=FALSE,fig.pos='h'}
 # plot retornos diarios 
 grid.arrange(
 ggplot(data = jp_r, aes(y = jp_r[,1], x = index(jp_r))) + geom_line()+ggtitle("Retornos diarios USD/JPY")+ labs(x = "Fecha",y = "") + theme_minimal(),
@@ -43,7 +43,7 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r[,1])) +
 )
 ```
 
-```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
+```{r echo=FALSE, fig.height = 4, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 #retornos ^2 distribucion y grafico
 grid.arrange(
 ggplot(data = jp_r, aes(y = jp_r^2, x = index(jp_r))) + 
@@ -52,13 +52,13 @@ ggplot(data = jp_r, aes(y = jp_r^2, x = index(jp_r))) +
   labs(x = "Fecha",y = "") + theme_minimal(),
 ggplot(data = jp_r, aes(y=..density.., x = jp_r^2)) +
   geom_histogram(bins = 200) +
-  ggtitle("Distrubución retornos diarios") +
+  ggtitle("Distrubución volatilidad retornos diarios") +
   geom_vline(aes(xintercept=mean(jp_r)), linetype="dashed") +
   geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') + theme_minimal()
 )
 ```
 
-```{r echo=FALSE, caption='Estadística descriptiva.'}
+```{r echo=FALSE, caption='Estadística descriptiva.', warning = FALSE,fig.pos='h',message=FALSE}
 stats_d<-basicStats(jp_r[,1])[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
 
 #En tabla:
@@ -74,28 +74,29 @@ knitr::kable(stats)
 # series ret de los años y aplicar la funcion 
 ```
 
-```{r}
+```{r echo=FALSE, fig.height = 7, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 #chart.TimeSeries(jp)
 jp_r08<-window(jp_r, start='2008-01-21', end='2009-12-31')
 jp_r20<-window(jp_r, start='2020-01-01', end=Sys.Date())
 #rollapply(jp_r)
 par(mfrow=c(3,1))
-chart.RollingPerformance(jp_r08, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
-chart.RollingPerformance(jp_r20, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
-chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
+chart.RollingPerformance(jp_r08, width = 22, FUN = "sd.annualized", scale = 252, main = "Volatilidad anualizada 2008-2009")
+chart.RollingPerformance(jp_r20, width = 22, FUN = "sd.annualized", scale = 252, main = "Volatilidad anualizada 2020-2021")
+chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "Volatilidad anualizada total")
 
 #Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
 ```
 
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
-```{r echo=FALSE,caption='Media condicional .'}
+```{r echo=FALSE,caption='Media condicional .',fig.pos='h',fig.height = 3, fig.width = 5, fig.align = "center",message=FALSE}
 # media incondicional 
+plot.new()
 lines(SMA(Cl(na.omit(jp)), n = 200), col = "red")
 lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
 
-```{r echo= FALSE}
+```{r echo= FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 # medias moviles retornos
 #ret=na.omit(diff(log(jp$`USDJPY=X.Close`), lag=1))
 #lines(SMA(ret, n = 100), col = "red")
@@ -107,18 +108,19 @@ lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
   
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
   
-```{r recho=FALSE}
+```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 rets<- ts(jp_r)
 ggAcf(rets,52)+ggtitle("Autocorrelación retornos diarios")
 ggAcf(rets,52, type= "partial")+ggtitle("Autocorrelación retornos diarios")
 
 ```
 
-```{r recho=FALSE}
+```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 ggAcf((rets)^2,52)+ggtitle("Autocorrelación volatilidad retornos diarios")
 
 ```
-```{r echo=FALSE }
+
+```{r echo=FALSE ,message=FALSE}
 # modelo garch
 ```
  
@@ -127,7 +129,7 @@ ggAcf((rets)^2,52)+ggtitle("Autocorrelación volatilidad retornos diarios")
   
   e. Cuál es la probabilidad de tener pérdidas con el 99% de confianza en un horizonte de día (use los resultados de su modelación para el cálculo).
   
-```{r echo= FALSE}
+```{r echo= FALSE,message=FALSE}
 # asuminedo distribucion normal
 #mu_R<- 
 #sigma_R<- 
