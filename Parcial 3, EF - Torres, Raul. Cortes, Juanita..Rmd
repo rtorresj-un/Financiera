@@ -123,16 +123,18 @@ lines(EMA(jp_r, n = 100), col = "green")
 
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
   
-```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
+```{r echo=FALSE, fig.align="center", fig.height=5, fig.pos='h', fig.width=3, message=FALSE, warning=FALSE}
 grid.arrange(
-ggAcf(jp_r,52)+ggtitle("Retornos diarios"),
-ggPacf(jp_r,52)
+ggAcf(jp_r,52)+ggtitle("Retornos diarios")+labs(x=""),
+ggPacf(jp_r,52)+ggtitle("")
 )
 ```
 
-```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
-ggAcf((rets)^2,52)+ggtitle("Autocorrelación volatilidad retornos diarios")
-
+```{r echo=FALSE, fig.height = 5, fig.width = 3, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
+grid.arrange(
+ggAcf(jp_r^2,52)+ggtitle("Volatilidad retornos diarios")+labs(x=""),
+ggPacf(jp_r^2,52)+ggtitle("")
+)
 ```
 
 ```{r echo=FALSE ,message=FALSE}
