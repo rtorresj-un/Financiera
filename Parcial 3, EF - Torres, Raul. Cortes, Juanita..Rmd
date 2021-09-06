@@ -88,10 +88,17 @@ chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, m
 ```
 
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
-```{r echo=FALSE,caption='Media condicional .'}
+```{r echo=FALSE,caption='Media condicional.'}
 # media incondicional 
-lines(SMA(Cl(na.omit(jp)), n = 200), col = "red")
-lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
+dataSMA.EMA=merge.xts('Retornos'=jp_r, 'Media móvil simple'= SMA(jp_r), 'Media móvil exponencial'= EMA(jp_r), fill = 'NA')
+#ggplot(data = dataSMA.EMA, aes(x = index(dataSMA.EMA))) + 
+#  geom_line(aes(y= Retornos, color='Retornos')) +
+#  geom_line(aes(y= SMA, color='SMA')) +
+#  geom_line(aes(y= EMA, color='EMA')) +
+#  labs(x = "Fecha",y = "", color = "") + theme_minimal()
+chart.TimeSeries(dataSMA.EMA, lwd = 1, legend.loc = "topright", colorset = c('grey',"darkgreen","firebrick"))
+lines(SMA(Cl(na.omit(jp)), n = 200), col = "darkgreen")
+lines(EMA(Cl(na.omit(jp)), n = 200), col = "firebrick")
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
 
