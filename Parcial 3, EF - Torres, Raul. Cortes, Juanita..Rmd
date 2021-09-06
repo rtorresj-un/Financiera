@@ -10,7 +10,7 @@ output:
 library(quantmod); library(PerformanceAnalytics); library(rugarch)
 library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca); library(timeDate); library(TSstudio); library(fBasics); library(randtests); library(vrtest)
 
-library(xts);library(zoo); library(TTR);library(tidyverse);library(dplyr); library(stats); library(greybox); library(smooth)
+library(xts);library(zoo); library(TTR);library(tidyverse);library(dplyr); library(stats); library(greybox); library(smooth);library(PerformanceAnalytics); library(rugarch)
 
 getSymbols('USDJPY=X',from = "2005-01-01", to = "2021-08-31", periodicity = "daily")
 jp <-Cl(`USDJPY=X`)
@@ -25,19 +25,19 @@ Supongan que ustedes son analistas del mercado financiero en una entidad privada
   
 Se presenta la gráfica de la tasa de cambio del dolar americado \textbf{USD} frente al Yen japones \textbf{JPY}
 
-```{r echo=FALSE }
-
+```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
+knitr::opts_chunk$set(fig.width=4) 
 ggplot(data = jp, aes(y = `USDJPY=X.Close`, x = index(jp))) + geom_line()+ggtitle("Tasa de cambio USD-JPY")+ labs(x = "Fecha",y = "USD/JPY") 
 
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
 # plot retornos diarios 
 ggplot(data = jp_r, aes(y = USDJPY.X.Close, x = fecha)) + geom_line()+ggtitle("Retornos diarios USD/JPY")+ labs(x = "Fecha",y = " Retornos USD/JPY") 
 ggplot(data = jp_r, aes(USDJPY.X.Close)) +geom_histogram(bins = 200)+ggtitle("Distrubución retornos diarios")+ labs(x = " ",y = " ") 
 
 ```
-```{r echo=FALSE}
+```{r echo=FALSE, fig.height = 3, fig.width = 5, fig.align = "center"}
 #retornos ^2 distribucion y grafico
 ggplot(data = jp_r, aes(y = (USDJPY.X.Close)^2, x = fecha)) + geom_line()+ggtitle("Volatilidad retornos USD/JPY")+ labs(x = "Fecha",y = "volatilidad retornos USD/JPY") 
 ggplot(data = jp_r, aes((USDJPY.X.Close)^2)) +geom_histogram(bins = 200) +ggtitle("Distribución volatilidad retornos USD/JPY")+ labs(x = "",y = "") 
@@ -46,31 +46,54 @@ ggplot(data = jp_r, aes((USDJPY.X.Close)^2)) +geom_histogram(bins = 200) +ggtitl
 
 ```{r echo=FALSE, caption='Estadística descriptiva.'}
 jp_r<-jp_r[,1]
-stats_d<-basicStats(jp_r1)[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
+stats_d<-basicStats(jp_r)[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
 stats<-data.frame(stats_d)
 row.names(stats)<-c("Mean", "SD", "Minimum", "Maximum", "Variance","Skewness","Kurtosis")
 colnames(stats)<-c(' USD/JPY')
 knitr::kable(stats)
 ```
+```{r echo=FALSE}
+#calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa 
+#chart.RollingPerformance(ret, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
+# series ret de los años y aplicar la funcion 
+```
 
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
-```{r echo=FALSE}
-lines(SMA(Cl(na.omit(jp)), n = 200), col = "red")
-lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
+```{r echo=FALSE,caption='Media condicional .'}
+# media incondicional 
+#lines(SMA(Cl(na.omit(jp)), n = 200), col = "red")
+#lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
 
 ```
 
-
-```{r}
-# Add a 200-day SMA using lines()
-lines(SMA(jp_r, n = 100), col = "red")
-lines(EMA(jp_r, n = 100), col = "green")
+```{r echo= FALSE}
+# medias moviles retornos
+#ret=na.omit(diff(log(jp$`USDJPY=X.Close`), lag=1))
+#lines(SMA(ret, n = 100), col = "red")
+#lines(EMA(ret, n = 100), col = "green")
 
 ```
+
 
   
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
   
+```{r recho=FALSE}
+rets<- ts(jp_r)
+ggAcf(rets,52)+ggtitle("Autocorrelación retornos diarios")
+ggAcf(rets,52, type= "partial")+ggtitle("Autocorrelación retornos diarios")
+
+```
+
+```{r recho=FALSE}
+ggAcf((rets)^2,52)+ggtitle("Autocorrelación volatilidad retornos diarios")
+
+```
+```{r echo=FALSE }
+# modelo garch
+```
+ 
+ 
   d. Pronóstico de la volatilidad a 10 días.
   
   e. Cuál es la probabilidad de tener pérdidas con el 99% de confianza en un horizonte de día (use los resultados de su modelación para el cálculo).
@@ -84,6 +107,7 @@ lines(EMA(jp_r, n = 100), col = "green")
 ```
   
   f. ¿Cambió la pandemia del COVID-19 la estructura de la volatilidad de la tasa de cambio? (para eso use datos desde enero del 2018).
+  
 
 Nota: Se espera que cada grupo ELIJA UNA TASA DE CAMBIO DIFERENTE, y presente un informe ejecutivo de no más de 10 páginas, en el que de respuesta a cada pregunta y presente los argumentos empíricos necesarios que la sustenten. Explique sus resultados e interprételos.
 
