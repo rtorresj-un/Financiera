@@ -88,21 +88,30 @@ chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, m
 ```
 
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
-```{r echo=FALSE,caption='Media condicional .',fig.pos='h',fig.height = 3, fig.width = 5, fig.align = "center",message=FALSE}
+```{r echo=FALSE,caption='Media condicional .',fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center", fig.show='hide'}
 # media incondicional 
 plot.new()
+plot(na.omit(jp), main= "Media movil y exponencial tasa de cambio")
 lines(SMA(Cl(na.omit(jp)), n = 200), col = "red")
-lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
+
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
+```
+```{r echo=FALSE,caption='Media condicional .',fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
+lines(EMA(Cl(na.omit(jp)), n = 200), col = "green")
 ```
 
-```{r echo= FALSE, fig.height = 3, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
+
+```{r echo= FALSE, fig.height = 3, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',fig.show= 'hide'}
 # medias moviles retornos
-#ret=na.omit(diff(log(jp$`USDJPY=X.Close`), lag=1))
-#lines(SMA(ret, n = 100), col = "red")
-#lines(EMA(ret, n = 100), col = "green")
+ret=na.omit(diff(log(jp$`USDJPY=X.Close`), lag=1))
+plot(ret, main= "Media movil y exponencial retornos")
+lines(SMA(ret, n = 100), col = "red")
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
+```{r echo=FALSE,caption='Media condicional .',fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
+lines(EMA(ret, n = 100), col = "green")
+```
+
 
 
   
