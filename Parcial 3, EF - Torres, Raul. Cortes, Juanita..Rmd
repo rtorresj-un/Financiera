@@ -77,15 +77,16 @@ knitr::kable(stats)
 ```{r}
 #chart.TimeSeries(jp)
 jp_r08<-window(jp_r, start='2008-01-21', end='2009-12-31')
+jp_r20<-window(jp_r, start='2020-01-01', end=Sys.Date())
 #rollapply(jp_r)
+par(mfrow=c(3,1))
 chart.RollingPerformance(jp_r08, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
+chart.RollingPerformance(jp_r20, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
+chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
+
 #Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
 ```
 
-```{r}
-chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
-#Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
-```
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
 ```{r echo=FALSE,caption='Media condicional .'}
 # media incondicional 
