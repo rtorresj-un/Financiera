@@ -355,7 +355,7 @@ ni_r = newsimpact(z = NULL, gjrgarch11.fit)
 
   e. Cuál es la probabilidad de tener pérdidas con el 99% de confianza en un horizonte de día (use los resultados de su modelación para el cálculo).
   
-```{r echo= FALSE,message=FALSE}
+```{r echo= FALSE,message=FALSE} 
 # asuminedo distribucion normal
 mu_R<- mean(jp_r)
 sigma_R<- sd(jp_r)
