@@ -81,7 +81,7 @@ Análisis del comportamiento de la tasa de cambio del dólar americano USD frent
   
 Se presenta la gráfica de la tasa de cambio del dolar americado \textbf{USD} frente al Yen japones \textbf{JPY} con datos desde enero de 2005 hasta agosto del 2021.
 
-```{r echo=FALSE ,message=FALSE ,fig.height = 2, fig.width = 7, fig.align = "center", fig.pos='h'}
+```{r echo=FALSE ,message=FALSE ,fig.height = 2, fig.width = 7, fig.align = "center", fig.pos='h', warning=FALSE}
 knitr::opts_chunk$set(fig.width=4) 
 grid.arrange(
 ggplot(data = jp, aes(y = jp, x = index(jp))) + geom_line()+
@@ -92,7 +92,7 @@ ggplot(data = jp, aes(y = jp, x = index(jp))) + geom_line()+
 ```
 La serie de la tasa de cambio no presenta una tendencia clara, sin embargo, presenta alta persistencia en el tiempo del componente autorregresivo, por lo tanto no es estacionaria.
 
-```{r echo=FALSE, fig.height = 2, fig.width = 7, fig.align = "center", message=FALSE,fig.pos='h'}
+```{r echo=FALSE, fig.height = 2, fig.width = 7, fig.align = "center", message=FALSE, warning=FALSE,fig.pos='h'}
 # plot retornos diarios 
 grid.arrange(
 ggplot(data = jp_r, aes(y = jp_r[,1], x = index(jp_r))) + geom_line()+ggtitle("Retornos diarios USD/JPY")+ labs(x = "Fecha",y = "") + theme_minimal(),ncol=2,
@@ -205,7 +205,7 @@ garch11.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
                           mean.model = list(armaOrder=c(0,1)))
 garch11.fit = ugarchfit(spec=garch11.spec, data=jp_r)
 
-texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "MA(1)", "omega", "alpha", "beta"), caption = "Resultados del modelo", custom.model.names = "sGARH(1,1)") #for latex # as R^2 is zero in this example.
+texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "MA(1)", "omega", "alpha", "beta"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)") #for latex # as R^2 is zero in this example.
 
 ```
 Como resultado de la regresión, se observa $\alpha$ y $\beta$ significativos a niveles de confianza del 95%, estos parámetros dan cuenta  de la existencia de clustering y persistencia de la volatilidad pasada sobre las volatilidades futuras, respectivamente; así, con $\alpha$ que los retornos son impactados por la llegada de nueva información, y $\beta$ refleja que el proceso de volatilidad tiene una estructura de correlación bastante sensible al pasado.
@@ -283,7 +283,7 @@ texreg(list(garm,gjr,egar), digits = 8, caption = "Resultados del modelo", custo
 
 ```
 
-Si se comparan los modelos siguiendo tanto la bondad de ajuste, como los criterios de información, el desempeño del modelo eGARCH(1,1), con una sstd tiene los mejores resultados. Bajo este modelo podemos establecer que es significativa a niveles de confianza del 95% la persistencia de la volatilidad sobre la tasa de cambio ($\beta$), también, es significativo el efecto leverage de las malas noticias en $\alpha$ y $\gamma$, parámetros que determinan la dirección y la magnitud del impacto de la llegada de nueva información al mercado. Esto se observa en la gráfica \ref{nic}, en la que se demuestra la afectación que producen los choques sobre los retornos, y que no es capturada por el modelo GARCH estándar. En suma, se evidencia que la tasa de cambio USD/JPY tiene alta sensibilidad a las noticias negativas, como se ve en la gráfica anterior, donde se compara la curva de impacto de información de los modelos GARCH(1,1) en azul, y eGARCH(1,1), en rojo. Adicionalmente, haber implementado una disrtibución ajustada permitió que los errores fueran mejor comportados, ya que se acomodan de mejor manera a los datos observados, sin tener correlación serial y haber mejorado su distribución con respecto al primer modelo.
+Si se comparan los modelos siguiendo tanto la bondad de ajuste, como los criterios de información, el desempeño del modelo eGARCH(1,1), con una sstd tiene los mejores resultados. Bajo este modelo podemos establecer que es significativa a niveles de confianza del 95% la persistencia de la volatilidad sobre la tasa de cambio ($\beta$), también, es significativo el efecto leverage de las malas noticias en $\alpha$ y $\gamma$, parámetros que determinan la dirección y la magnitud del impacto de la llegada de nueva información al mercado. Esto se observa en la gráfica de la Función de Impacto de Noticias (NIF), en la que se demuestra la afectación que producen los choques sobre los retornos, y que no es capturada por el modelo GARCH estándar. En suma, se evidencia que la tasa de cambio USD/JPY tiene alta sensibilidad a las noticias negativas, como se ve en la gráfica anterior, donde se compara la curva de impacto de información de los modelos GARCH(1,1) en azul, y eGARCH(1,1), en rojo. Adicionalmente, haber implementado una disrtibución ajustada permitió que los errores fueran mejor comportados, ya que se acomodan de mejor manera a los datos observados, sin tener correlación serial y haber mejorado su distribución con respecto al primer modelo.
 
 ```{r echo=FALSE, results = 'asis',fig.pos='h',warning=FALSE}
 		ni = newsimpact(z = NULL, garch11.fit)
@@ -295,7 +295,7 @@ Si se comparan los modelos siguiendo tanto la bondad de ajuste, como los criteri
 	#	  geom_line(colour="steelblue") + xlab(xf) + ylab(yf) + theme_minimal()
 #		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
 ```
-```{r echo=FALSE, fig.height=2, fig.pos='h', fig.width=2, message=FALSE, ref.label="nic"}
+```{r,  echo=FALSE, fig.height=2, fig.pos='h', fig.width=2, message=FALSE}
 ni_r = newsimpact(z = NULL, egarch11.fit)
 		ni.y_r = ni_r$zy
 		ni.x_r = ni_r$zx
@@ -337,7 +337,7 @@ ni_r = newsimpact(z = NULL, egarch11.fit)
 #)
 ```
 
-```{r echo=FALSE, fig.align="center", fig.height=3, fig.pos='h', fig.width=7, message=FALSE}
+```{r echo=FALSE, fig.align="center", fig.height=3, fig.pos='h', fig.width=7, message=FALSE, warning=FALSE}
 resid3<-residuals(egarch11.fit)
 med<-mean(resid3)
 sstddens2<-data.frame(predicted = resid3, density = dsstd(resid3, mean(resid3), sd(resid3), xi = egarch11.fit@fit[["coef"]][["skew"]]))
@@ -368,12 +368,11 @@ plot(egarch11.forecast, which=3)
 
 Con un pronóstico simple, se espera que la volatilidad de los retornos aumente dentro de una ventana de diez días.
 
-```{r, echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
-rollfore <- ugarchroll(egarch11, jp_r, n.start = 2000, refit.every = 50,
+```{r, echo=FALSE,fig.pos='h',fig.height = 7, fig.width = 8.5, fig.align = "center"}
+rollfore <- ugarchroll(egarch11, jp_r, n.start = 2000, refit.every = 22,
                        refit.window = "moving", solver = "hybrid",
                        calculate.VaR = TRUE, VaR.alpha = c(0.01, 0.05),
                        keep.coef = TRUE)
-show(rollfore)
 #genera pronóstico de sigma, retornos, distribución, y predice la distribución de los pronósticos.
 #report(rollfore, type="VaR", VaR.alpha = 0.01, conf.level = 0.95) #backtesting
 preds <- as.data.frame(rollfore) # Yo safe data as a dataframe
@@ -390,26 +389,28 @@ mu_R<- mean(jp_r)
 sigma_R<- sd(jp_r)
 qsstd(0.01, mean= mu_R, sd= sigma_R)*100
 ```
-
-```{r}
-mean(actual < garchVaR)*100
-```
   
 ```{r, echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
 garchVaR <- quantile(as.data.frame(rollfore)$Realized, probs = 0.05)
 garchVaR <- quantile(rollfore, probs = 0.05)
 actual <- xts(as.data.frame(rollfore)$Realized, time(garchVaR))
-VaRplot(alpha = 0.05, actual = actual, VaR = garchVaR)
+#VaRplot(alpha = 0.05, actual = actual, VaR = garchVaR)
 
 ```
 
-Por otro lado, con la especificación escogida del modelo se obtuvo una cobertura promedio para el VaR de 4.6%, lo que indica que se sobreestimó ligeramente el riesgo de pérdida, frente a un nivel de confianza del 95%.
+```{r}
+mean(actual < garchVaR)*100
+```
+
+Por otro lado, con la especificación escogida del modelo se obtuvo una cobertura promedio para el VaR de 4.6%, lo que indica que se sobreestimó ligeramente el riesgo de pérdida, frente a un nivel de confianza del 95%. En este sentido, si observamos la gráfica del VaR asociado al modelo estimado, se concluye que la predicción del valor en riesgo que se realiza tiene un buen ajuste, dado que son pocas las observaciones en las que el modelo no puede capturar pérdidas superiores a las predichas.
 
   f. ¿Cambió la pandemia del COVID-19 la estructura de la volatilidad de la tasa de cambio? (para eso use datos desde enero del 2018).
 
-```{r , echo = FALSE, fig.height=2, fig.width=5, message=FALSE}
+```{r , echo = FALSE, fig.height=2, fig.width=7, fig.pos='h', message=FALSE, fig.align = "center"}
 chart.RollingPerformance(jp_r18, width = 22, FUN = "sd.annualized", scale = 252, main = "Volatilidad anualizada 2018-2021")
+```
 
+```{r , echo = FALSE, fig.height=2, fig.width=7, fig.pos='h', warning=FALSE, message=FALSE, fig.align = "center"}
 med4<-mean(jp_r18)
 normaldens4<-data.frame(predicted = jp_r18, density = dnorm(jp_r18, mean(jp_r18), sd(jp_r18)))
 
@@ -420,6 +421,7 @@ ggplot(data = jp_r18, aes(y=..density.., x = jp_r18[,1])) +
   geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') +
   geom_line(aes(y = density), data = normaldens4, colour = "firebrick") +theme_minimal()
 ```
+
 De lo anterior se concluye que a pesar de que los datos estén menos apuntados sobre su media, siguen siendo leptocúrticos, y su distribución sigue presentando colas pesadas, por lo que no sigue una distribución normal (en rojo). Por lo tanto, aún se hace necesario un ajuste de la distribución por medio de el uso de la sstd.
 ```{r echo=FALSE, fig.align="center", fig.height=3, fig.pos='h', fig.width=7, message=FALSE, warning=FALSE}
 grid.arrange(
@@ -436,7 +438,7 @@ A partir de las gráficas de volatilidad condicional y de autocorrelación, esta
 
 La gráfica anterior hace evidente que han aumentado los clústeres y la persistencia de la volatilidad. Asimismo, los retornos no requieren modelación de la media condicional, ya que se comportan como un proceso ruido blanco.
 
-```{r, echo=FALSE, results="asis"}
+```{r, echo=FALSE, results="asis", fig.pos='h'}
 garch11.spec2 = ugarchspec(variance.model = list(garchOrder=c(2,2)),
                           mean.model = list(armaOrder=c(0,0)),
                           distribution.model = "sstd")
@@ -470,9 +472,9 @@ texreg(list(garch2,gjr2, egar3,egar2), digits = 8, caption = "Resultados del mod
 
 ```
 
-Vemos en la tabla anterior que el modelo que ofrece mejor ajuste a los datos es el eGARCH(2,2), en comparación con los demás. Así, se hace evidente el cambio en la estructura de la volatilidad de los retornos en la ventana de tiempo seleccionada, que provocó una mayor dependencia de la volatilidad pasada de los retornos, así como un incremento en la magnitud de la asimetría del impacto de la información nueva sobre la tasa de cambio.
+Vemos en la tabla anterior que el modelo que ofrece mejor ajuste a los datos es el eGARCH(2,2), en comparación con los demás. Así, se hace evidente el cambio en la estructura de la volatilidad de los retornos en la ventana de tiempo seleccionada, que provocó una mayor dependencia de la volatilidad pasada de los retornos, así como un incremento en la magnitud de la asimetría del impacto de la información nueva sobre tasa de cambio.
 
-```{r echo=FALSE, fig.height=2, fig.pos='h', fig.width=2, message=FALSE}
+```{r, fig.align="center", echo=FALSE, fig.height=2, fig.pos='h', fig.width=2, message=FALSE, fig.align = "center"}
 ni_z = newsimpact(z = NULL, egarch11.fit2)
 		ni.y_z = ni_z$zy
 		ni.x_z = ni_z$zx
@@ -483,3 +485,9 @@ ni_z = newsimpact(z = NULL, egarch11.fit2)
 		  xlab(xf) + ylab(yf) + theme_minimal()
 #		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
 ```
+
+En conclusión, consideramos apropiado invertir en esta tasa de cambio por varias razones, en primer lugar JPY es moneda divisa y relativamente fuerte con respecto al dolar, por tanto, dados los posibles escenarios que afecten la estabilidad del dolar (como cambios en incentivos a la producción del petróleo y políticas asociadas al ciclo económico en un contexto pos-pandemia), incrementos en la volatilidad de esta divisa pueden ser cubiertos con el yen.
+
+En segundo lugar, a pesar de la coyuntura generada por la pandemia, los retornos de la tasa de cambio fueron menos volátiles en comparación con el periodo de crisis más reciente y profundo (2008-2009), además se presentaron retornos positivos y mayores a los observados en dicho periodo de la muestra, por lo que el riesgo asociado a la incertidumbre mundial se ha visto compensado.
+
+Finalmente, el porcentaje máximo de perdidas esperadas a niveles de confianza del 95% se encuentra alrededor del 1.4% según nuestras estimaciones, lo que brinda confianza para invertir en este activo porque constituye una rentabilidad segura con probabilidades de pérdida bajas. Así, puede ser una buena oportunidad para diversificar el riesgo del portafolio en tiempos de incertidumbre frente al auge económico.
