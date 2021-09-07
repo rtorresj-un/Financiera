@@ -227,7 +227,7 @@ knitr::kable(nybtab11c)
 
 Según el test de Nyblom que evalúa el cambio estructural en los parámetros del modelo, se tiene que tanto $\mu$, como $\alpha$ y $\beta$ pueden tener cambios estructurales, contrario a $\omega$. Esto concuerda con la estructura de los retornos que se mostraba en los primeros literales, la cual es diferente para los periodos de crisis y estabilidad.
 
-```{r echo=FALSE, fig.align=, fig.height=7, fig.pos='h', fig.width=3}
+```{r echo=FALSE, fig.height=3, fig.pos='h', fig.width=7}
 #plot(garch11.fit, which="all")
 resid1<-residuals(garch11.fit)
 med<-mean(resid1)
