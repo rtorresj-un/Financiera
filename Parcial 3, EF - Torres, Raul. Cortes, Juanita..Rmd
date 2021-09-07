@@ -177,7 +177,7 @@ A partir de la gráfica \ref{1} se requiere modelación del proceso de volatilid
 
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
   Para verificar la necesidad de modelar la media condicional en primer lugar, se examinaron medidas de media incondicional para evaluar la existencia de desviaciones a la media de largo plazo.
-```{r echo= FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
+```{r echo= FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center", fig.show='hide'}
 plot(jp_r20, main= "Media movil y exponencial de retornos USD/JPY", type='l', lwd=1)
 lines(SMA(jp_r20, n = 22), col = "darkgreen", lwd=2)
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
@@ -189,12 +189,11 @@ lines(EMA(jp_r20, n = 22), col = "firebrick", lwd=2)
 Al observar distintas ventanas de tiempo, se determina que es necesario modelar la media de los retornos de la tasa de cambio, debido a la presencia de fluctuaciones con respecto a la media de largo plazo (SMA en verde y EMA en rojo).
 
 Por parsimonia y criterios de información se determian que el modelo a estimar es un $MA(1)$ 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.pos='h'}
 ma1<- arma(jp_r,c(0,1))
-summary(ma1)
 
-fit2 <- stats::arima(AirPassengers, order = c(2,1,1), seasonal = c(0,1,0))
-stargazer(fit2, type = "html")
+fit2 <- stats::arima(jp_r, order = c(0,0,1))
+stargazer(fit2)
 
 ```
  
