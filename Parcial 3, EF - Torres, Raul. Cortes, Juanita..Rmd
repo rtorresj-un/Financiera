@@ -89,16 +89,9 @@ ggplot(data = jp, aes(y = jp, x = index(jp))) + geom_line()+
   theme_minimal(), ncol=2,
   ggAcf(jp,52)+ggtitle("USD/JPY")+labs(x="")+theme_minimal())
 ```
+La serie de la tasa de cambio no presenta una tendencia clara, sin embargo, presenta alta persistencia en el tiempo del componente autorregresivo, por lo tanto no es estacionaria.
 
-La serie de la tasa de cambio no presenta una tendencia clara, sin embargo, presenta alta persistencia en el tiempo por tanto no es estacionaria
-```{r echo=FALSE, fig.height = 2, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
-grid.arrange(
-ggAcf(jp,52)+ggtitle("USD/JPY")+labs(x="")+theme_minimal(),
-#ggPacf(jp,52)+ggtitle("")+theme_minimal()
-)
-```
-Se observa que los retornos fluctuan al rededor de cero, son volátiles y presentan clusters de volatilidad, lo que concuerda con el comportamiento esperado de los retornos de las series finacieras.Además, los datos están altamente concentrados al rededor de su valor medio y se encuentra una mayor probabilidad de datos atípicos (representados en las colas), lo que hace que la distribución de los retornos sea leptocúrtica y tenga colas pesadas.
-```{r echo=FALSE, fig.height = 4, fig.width = 5, fig.align = "center", message=FALSE,fig.pos='h'}
+```{r echo=FALSE, fig.height = 2, fig.width = 7, fig.align = "center", message=FALSE,fig.pos='h'}
 # plot retornos diarios 
 grid.arrange(
 ggplot(data = jp_r, aes(y = jp_r[,1], x = index(jp_r))) + geom_line()+ggtitle("Retornos diarios USD/JPY")+ labs(x = "Fecha",y = "") + theme_minimal(),ncol=2,
@@ -109,6 +102,7 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r[,1])) +
   geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') +theme_minimal()
 )
 ```
+
 
 ```{r echo=FALSE, caption='Estadística descriptiva.', warning = FALSE,fig.pos='h',message=FALSE}
 stats_d<-basicStats(jp_r[,1])[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
@@ -149,28 +143,19 @@ ggPacf(jp_r^2,52)+ggtitle("")+theme_minimal()
 )
 #Necesidad de modelar la media y la varianza.
 ```
-
 En cuanto a la estacionariedad, bajo la prueba de DF se concluye que la serie de los retornos es estacionaria y no presenta deriva. 
 Con respecto a la autocorrelación simple y parcial de los $retornos$, no se observa un proceso altamente persistente en el tiempo lo que concuerda con la prueba de DF, sin embargo, no se puede determinar a simple vista el proceso generador de los retornos dado el comportamiento irregular de las funciones. 
 En cuanto a la autocorrelación de los $retornos^2$ se observa una estructura de autocorrelación parcial, por lo que es necesario modelar este comportamiento. 
 
-```{r echo=FALSE}
-#calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa 
-#chart.RollingPerformance(ret, width = 22, FUN = "sd.annualized", scale = 252, main = "One month rolling volatility")
-# series ret de los años y aplicar la funcion 
-```
 
 Comparando la volatilidad anualizada para diferentes periodos de la muestra observamos lo siguiente:
 ```{r echo=FALSE, fig.height = 6, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE, ref.label="1"}
-
 #chart.TimeSeries(jp)
 #rollapply(jp_r)
 par(mfrow=c(3,1))
 chart.RollingPerformance(jp_r08, width = 22, FUN = "sd.annualized", scale = 252, main = "Volatilidad anualizada 2008-2009")
 chart.RollingPerformance(jp_r20, width = 22, FUN = "sd.annualized", scale = 252, main = "Volatilidad anualizada 2020-2021")
 chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, main = "Volatilidad anualizada total")
-
-apply.rolling(managers[,1,drop=FALSE], FUN="mean", width=36)
 
 #Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
 ```
@@ -182,8 +167,7 @@ table.AnnualizedReturns(jp_r08, scale = 252)[-3,],
 table.AnnualizedReturns(jp_r20)[-3,]),"")
 row.names(tablasd)<-c("Retorno anualizado","SD anualizado")
 colnames(tablasd)<- c("Total","2008-09","2020-21")
-tablasd[,4] <- NULL 
-tablass<-tablasd
+tablass<-tablasd[,-4]
 knitr::kable(tablass)
 ```
 En los periodos de crisis se observa una escalada de la volatilidad que viene acompañada de más periodos de volatilidad, lo que puede ser visto como síntoma de clusterización. Particularmente, durante el periodo 2008-2009 los efectos de la crisis parecen ser mayores sobre los retornos que en el periodo 2020-2021 hecho que es consecuente con el efecto apalancamiento, donde a mayor volatilidad y riesgo asociado, se observaron mayores caídas en los precios y consecuentemente menores retornos. 
@@ -196,22 +180,27 @@ plot(jp_r20, main= "Media movil y exponencial de retornos USD/JPY", type='l', lw
 lines(SMA(jp_r20, n = 22), col = "darkgreen", lwd=2)
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
+
 ```{r echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
 lines(EMA(jp_r20, n = 22), col = "firebrick", lwd=2)
 ```
-
 Al observar distintas ventanas de tiempo, se determina que es necesario modelar la media de los retornos de la tasa de cambio, debido a la presencia de fluctuaciones con respecto a la media de largo plazo (SMA en verde y EMA en rojo).
 
 Por parsimonia y criterios de información se determian que el modelo a estimar es un $MA(1)$ 
-```{r echo=FALSE, fig.pos='h',`results = FALSE`}
+```{r echo=FALSE, fig.pos='h', warning=FALSE}
 ma1<- arma(jp_r,c(0,1))
 
 fit2 <- stats::arima(jp_r, order = c(0,0,1))
-knitr:: kable(stargazer(fit2))
+#knitr:: kable(stargazer(fit2))
 
 ```
  
+ 
+ 
+ 
+ 
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
+  
 
 ```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
 garch11.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
@@ -225,6 +214,7 @@ texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), dig
 ```{r, echo=FALSE,fig.pos='h'}
 knitr::kable(signbias(garch11.fit)[,c(2,3)])
 ```
+
 ```{r, echo=FALSE,fig.pos='h'}
 nybtab11<-nyblom(garch11.fit)$IndividualStat
 colnames(nybtab11)<-c("p-value")
@@ -252,7 +242,7 @@ garch11.fit = ugarchfit(spec=garch11.spec, data=jp_r)
 texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)") #for latex # as R^2 is zero in this example.
 ```
 
-```{r}
+```{r echo=FALSE, results = 'asis',fig.pos='h',fig.align = "center"}
 #plot(garch11.fit, which="all")
 resid1<-residuals(garch11.fit)
 med<-mean(resid1)
@@ -273,18 +263,18 @@ ggPacf(resid1,52)+ggtitle("")+theme_minimal()
 
 ```
 
-```{r}
+```{r echo=FALSE, results = 'asis',fig.pos='h',warning=FALSE}
 		ni = newsimpact(z = NULL, garch11.fit)
 		ni.y = ni$zy
 		ni.x = ni$zx
 		xf = ni$xexpr
 		yf  = ni$yexpr
-		ggplot(data = data.frame(ni.y,ni.x), aes(x=ni.x,y=ni.y))+
-		  geom_line(colour="steelblue") + xlab(xf) + ylab(yf) + theme_minimal()
+	#	ggplot(data = data.frame(ni.y,ni.x), aes(x=ni.x,y=ni.y))+
+	#	  geom_line(colour="steelblue") + xlab(xf) + ylab(yf) + theme_minimal()
 #		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
 ```
 
-```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
+```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h',warning=FALSE}
 garch11sstd.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
                           mean.model = list(armaOrder=c(0,0)),
                           distribution.model = "sstd")
@@ -293,7 +283,7 @@ garch11sstd.fit = ugarchfit(spec=garch11sstd.spec, data=jp_r)
 texreg(extract.rugarch(garch11sstd.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
 ```
 
-```{r echo=FALSE,message=FALSE, results = 'asis',fig.pos='h'}
+```{r echo=FALSE,message=FALSE, results = 'asis',fig.pos='h',fig.align = "center",warning=FALSE}
 #plot(garch11sstd.fit, which="all")
 resid2<-residuals(garch11sstd.fit)
 med<-mean(resid2)
@@ -313,7 +303,7 @@ ggPacf(resid2,52)+ggtitle("")+theme_minimal()
 )
 ```
 
-```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
+```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h',fig.align = "center"}
 gjrgarch11.spec = ugarchspec(variance.model = list(model="gjrGARCH", garchOrder=c(1,1)),
                           mean.model = list(armaOrder=c(0,0)),
                           distribution.model = "sstd")
@@ -322,7 +312,7 @@ gjrgarch11.fit = ugarchfit(spec=gjrgarch11.spec, data=jp_r)
 texreg(extract.rugarch(gjrgarch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "gamma", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "GJR-GARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
 ```
 
-```{r,message=FALSE, results = 'asis',fig.pos='h'}
+```{r echo= FALSE,message=FALSE, results = 'asis',fig.pos='h', fig.align = "center"}
 resid3<-residuals(gjrgarch11.fit)
 med<-mean(resid3)
 sstddens2<-data.frame(predicted = resid3, density = dsstd(resid3, mean(resid3), sd(resid3), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
@@ -344,7 +334,7 @@ stat_qq(distribution = qsstd, dparams = params) + stat_qq_line(distribution = qs
 )
 ```
 
-```{r echo=FALSE, message=FALSE, results = 'asis',fig.pos='h'}
+```{r echo=FALSE, message=FALSE, results = 'asis',fig.pos='h',fig.height = 3, fig.width = 3, fig.align = "center"}
 ni_r = newsimpact(z = NULL, gjrgarch11.fit)
 		ni.y_r = ni_r$zy
 		ni.x_r = ni_r$zx
@@ -357,24 +347,7 @@ ni_r = newsimpact(z = NULL, gjrgarch11.fit)
 #		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
 ```
 
-
   d. Pronóstico de la volatilidad a 10 días.
-
-```{r}
-rollfore <- ugarchroll(ar1egarch11, jp_r, n.start = 2000, refit.every = 3,
-                       refit.window = "moving", solver = "hybrid",
-                       calculate.VaR = TRUE, VaR.alpha = c(0.01, 0.05),
-                       keep.coef = TRUE)
-show(rollfore)
-#genera pronóstico de sigma, retornos, distribución, y predice la distribución de los pronósticos.
-report(rollfore, type="VaR", VaR.alpha = 0.01, conf.level = 0.95) #backtesting
-preds <- as.data.frame(rollfore) # Yo safe data as a dataframe
-head(preds)
-garchvol <- xts(preds$Sigma, order.by = seq(as.Date("1992/9/1"), as.Date("1999/12/1"), by = "month"))
-plot(garchvol)
-```
-
-
 
   e. Cuál es la probabilidad de tener pérdidas con el 99% de confianza en un horizonte de día (use los resultados de su modelación para el cálculo).
   
@@ -387,7 +360,9 @@ W0*qnorm(0.01, mean= mu_R, sd<- sigma_R)
 ```
   
   f. ¿Cambió la pandemia del COVID-19 la estructura de la volatilidad de la tasa de cambio? (para eso use datos desde enero del 2018).
+```{r echo=FALSE}
+jp_covid<-window(jp_r, start='2018-01-01', end=Sys.Date())
+```
   
 
-Nota: Se espera que cada grupo ELIJA UNA TASA DE CAMBIO DIFERENTE, y presente un informe ejecutivo de no más de 10 páginas, en el que de respuesta a cada pregunta y presente los argumentos empíricos necesarios que la sustenten. Explique sus resultados e interprételos.
 
