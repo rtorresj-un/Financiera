@@ -85,14 +85,14 @@ ggplot(data = jp, aes(y = jp, x = index(jp))) + geom_line()+
   labs(x = "Fecha",y = "USD/JPY") +
   theme_minimal()
 ```
-
+La serie de la tasa de cambio no presenta una tendencia clara, sin embargo, no es estacionaria
 ```{r echo=FALSE, fig.height = 5, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 grid.arrange(
 ggAcf(jp,52)+ggtitle("USD/JPY")+labs(x="")+theme_minimal(),
 ggPacf(jp,52)+ggtitle("")+theme_minimal()
 )
 ```
-
+Se observa que los retornos fluctuan al rededor de cero, son volátiles y presentan clusters de volatilidad, lo que concuerda con el comportamiento esperado de los retornos de las series finacieras.Además, los datos están altamente concentrados al rededor de su valor medio y se encuentra una mayor probabilidad de datos atípicos (representados en las colas), lo que hace que la distribución de los retornos sea leptocúrtica y tenga colas pesadas.
 ```{r echo=FALSE, fig.height = 4, fig.width = 5, fig.align = "center", message=FALSE,fig.pos='h'}
 # plot retornos diarios 
 grid.arrange(
@@ -104,7 +104,7 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r[,1])) +
   geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') +theme_minimal()
 )
 ```
-
+En cuanto a la volatilidad de los retornos se observan picos tras la crisis financiera del 2008 
 ```{r echo=FALSE, fig.height = 4, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 #retornos ^2 distribucion y grafico
 grid.arrange(
@@ -119,7 +119,7 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r^2)) +
   geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') + theme_minimal()
 )
 ```
-
+Finalmente, el valor de la desviación estándar es más alto al de la media, por lo que la volatidad domina el comportamiento de los retornos 
 ```{r echo=FALSE, caption='Estadística descriptiva.', warning = FALSE,fig.pos='h',message=FALSE}
 stats_d<-basicStats(jp_r[,1])[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
 
