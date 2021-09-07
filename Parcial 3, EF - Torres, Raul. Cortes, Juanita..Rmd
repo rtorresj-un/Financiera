@@ -72,6 +72,7 @@ jp_r<-na.omit(jp_r)
 jp_r<-xts(jp_r[,1], order.by = jp_r$fecha)
 jp_r08<-window(jp_r, start='2008-01-21', end='2009-12-31')
 jp_r20<-window(jp_r, start='2020-01-01', end=Sys.Date())
+jp_r18<-window(jp_r, start='2018-01-01', end=Sys.Date())
 ```
 
 Análisis del comportamiento de la tasa de cambio del dólar americano USD frente al yen japones (USD/JPY).   
@@ -360,34 +361,125 @@ stat_qq(distribution = qsstd, dparams = params) + stat_qq_line(distribution = qs
 
   d. Pronóstico de la volatilidad a 10 días.
 
-```{r}
-#rollfore <- ugarchroll(ar1egarch11, ibm, n.start = 800, refit.every = 3,
-#                       refit.window = "moving", solver = "hybrid",
-#                       calculate.VaR = TRUE, VaR.alpha = c(0.01, 0.05),
-#                       keep.coef = TRUE)
-#show(rollfore)
+```{r echo=FALSE, results = 'asis',fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
+egarch11.forecast<- ugarchforecast(egarch11.fit, n.ahead = 10)
+plot(egarch11.forecast, which=3)
+```
+
+Con un pronóstico simple, se espera que la volatilidad de los retornos aumente dentro de una ventana de diez días.
+
+```{r, echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
+rollfore <- ugarchroll(egarch11, jp_r, n.start = 2000, refit.every = 50,
+                       refit.window = "moving", solver = "hybrid",
+                       calculate.VaR = TRUE, VaR.alpha = c(0.01, 0.05),
+                       keep.coef = TRUE)
+show(rollfore)
 #genera pronóstico de sigma, retornos, distribución, y predice la distribución de los pronósticos.
 #report(rollfore, type="VaR", VaR.alpha = 0.01, conf.level = 0.95) #backtesting
-#preds <- as.data.frame(rollfore) # Yo safe data as a dataframe
-#head(preds)
-#garchvol <- xts(preds$Sigma, order.by = seq(as.Date("1992/9/1"), as.Date("1999/12/1"), by = #"month"))
-#plot(garchvol)
+preds <- as.data.frame(rollfore) # Yo safe data as a dataframe
+garchvol <- xts(preds$Sigma, order.by = as.Date(row.names(preds)))
+plot(rollfore, which="all")
 ```
 
   e. Cuál es la probabilidad de tener pérdidas con el 99% de confianza en un horizonte de día (use los resultados de su modelación para el cálculo).
-  
-```{r echo= FALSE,message=FALSE} 
-# asuminedo distribucion normal
+
+Teniendo una distribución sstd, se esperaría que el valor en riesgo a nivel de confianza del 99% con un horizonte de un día, sea de -1.399%
+
+```{r} 
 mu_R<- mean(jp_r)
 sigma_R<- sd(jp_r)
-W0<- 100000
-W0*qnorm(0.01, mean= mu_R, sd<- sigma_R)
+qsstd(0.01, mean= mu_R, sd= sigma_R)*100
+```
+
+```{r}
+mean(actual < garchVaR)*100
 ```
   
+```{r, echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
+garchVaR <- quantile(as.data.frame(rollfore)$Realized, probs = 0.05)
+garchVaR <- quantile(rollfore, probs = 0.05)
+actual <- xts(as.data.frame(rollfore)$Realized, time(garchVaR))
+VaRplot(alpha = 0.05, actual = actual, VaR = garchVaR)
+
+```
+
+Por otro lado, con la especificación escogida del modelo se obtuvo una cobertura promedio para el VaR de 4.6%, lo que indica que se sobreestimó ligeramente el riesgo de pérdida, frente a un nivel de confianza del 95%.
+
   f. ¿Cambió la pandemia del COVID-19 la estructura de la volatilidad de la tasa de cambio? (para eso use datos desde enero del 2018).
-```{r echo=FALSE}
-jp_covid<-window(jp_r, start='2018-01-01', end=Sys.Date())
+
+```{r , echo = FALSE, fig.height=2, fig.width=5, message=FALSE}
+chart.RollingPerformance(jp_r18, width = 22, FUN = "sd.annualized", scale = 252, main = "Volatilidad anualizada 2018-2021")
+
+med4<-mean(jp_r18)
+normaldens4<-data.frame(predicted = jp_r18, density = dnorm(jp_r18, mean(jp_r18), sd(jp_r18)))
+
+ggplot(data = jp_r18, aes(y=..density.., x = jp_r18[,1])) +
+  geom_histogram(bins = 200) +
+  ggtitle("Distrubución retornos diarios") +
+  geom_vline(aes(xintercept=med4), linetype="dashed") +
+  geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') +
+  geom_line(aes(y = density), data = normaldens4, colour = "firebrick") +theme_minimal()
 ```
-  
+De lo anterior se concluye que a pesar de que los datos estén menos apuntados sobre su media, siguen siendo leptocúrticos, y su distribución sigue presentando colas pesadas, por lo que no sigue una distribución normal (en rojo). Por lo tanto, aún se hace necesario un ajuste de la distribución por medio de el uso de la sstd.
+```{r echo=FALSE, fig.align="center", fig.height=3, fig.pos='h', fig.width=7, message=FALSE, warning=FALSE}
+grid.arrange(
+ggAcf(jp_r18,52)+ggtitle("Retornos diarios")+labs(x="")+theme_minimal(),
+ggAcf(jp_r18^2,52)+ggtitle("Volatilidad retornos diarios")+labs(x="")+theme_minimal(),
+ggPacf(jp_r18,52)+ggtitle("")+theme_minimal(),
+ggPacf(jp_r18^2,52)+ggtitle("")+theme_minimal()
 
+)
+#Necesidad de modelar la media y la varianza.
+```
 
+A partir de las gráficas de volatilidad condicional y de autocorrelación, establecemos que la estructura de los retornos ha cambiado para el periodo evaluado, en comparación con la serie completa. Para este últimoo periodo de análisis, la varianza de largo plazo es diferente de cero y muestra cambios en el tiempo.
+
+La gráfica anterior hace evidente que han aumentado los clústeres y la persistencia de la volatilidad. Asimismo, los retornos no requieren modelación de la media condicional, ya que se comportan como un proceso ruido blanco.
+
+```{r, echo=FALSE, results="asis"}
+garch11.spec2 = ugarchspec(variance.model = list(garchOrder=c(2,2)),
+                          mean.model = list(armaOrder=c(0,0)),
+                          distribution.model = "sstd")
+garch11.fit2 = ugarchfit(spec=garch11.spec2, data=jp_r18)
+
+gjrgarch11.spec2 = ugarchspec(variance.model = list(model="gjrGARCH", garchOrder=c(2,2)),
+                          mean.model = list(armaOrder=c(0,0)),
+                          distribution.model = "sstd")
+gjrgarch11.fit2 = ugarchfit(spec=gjrgarch11.spec2, data=jp_r18)
+
+egarch113 <- ugarchspec(variance.model = list(model="eGARCH",
+                                                variance.targeting=F,
+                                                garchOrder=c(1,1)),
+                          mean.model = list(armaOrder=c(0,0)),
+                          distribution.model = "sstd")
+egarch11.fit3 = ugarchfit(spec=egarch113,data=jp_r18)
+
+egarch112 <- ugarchspec(variance.model = list(model="eGARCH",
+                                                variance.targeting=F,
+                                                garchOrder=c(2,2)),
+                          mean.model = list(armaOrder=c(0,0)),
+                          distribution.model = "sstd")
+egarch11.fit2 = ugarchfit(spec=egarch112,data=jp_r18)
+
+garch2<-extract.rugarch(garch11.fit2, indep = jp_r18, include.rsquared = FALSE)
+egar3<-extract.rugarch(egarch11.fit3, indep = jp_r18, include.rsquared = FALSE)
+egar2<-extract.rugarch(egarch11.fit2, indep = jp_r18, include.rsquared = FALSE)
+gjr2<-extract.rugarch(gjrgarch11.fit2, indep = jp_r18, include.rsquared = FALSE)
+
+texreg(list(garch2,gjr2, egar3,egar2), digits = 8, caption = "Resultados del modelo", custom.model.names = c("sGARCH","GJR-GARCH","eGARCH(1,1)", "eGARCH(2,2)"))
+
+```
+
+Vemos en la tabla anterior que el modelo que ofrece mejor ajuste a los datos es el eGARCH(2,2), en comparación con los demás. Así, se hace evidente el cambio en la estructura de la volatilidad de los retornos en la ventana de tiempo seleccionada, que provocó una mayor dependencia de la volatilidad pasada de los retornos, así como un incremento en la magnitud de la asimetría del impacto de la información nueva sobre la tasa de cambio.
+
+```{r echo=FALSE, fig.height=2, fig.pos='h', fig.width=2, message=FALSE}
+ni_z = newsimpact(z = NULL, egarch11.fit2)
+		ni.y_z = ni_z$zy
+		ni.x_z = ni_z$zx
+		xf = ni_z$xexpr
+		yf  = ni_z$yexpr
+		ggplot(data = data.frame(ni.y_z,ni.x_z, ni.x_r, ni.y_r))+
+		  geom_line(aes(x=ni.x_z,y=ni.y_z, colour="eGARCH(2,2)"), color="gold") +
+		  xlab(xf) + ylab(yf) + theme_minimal()
+#		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
+```
