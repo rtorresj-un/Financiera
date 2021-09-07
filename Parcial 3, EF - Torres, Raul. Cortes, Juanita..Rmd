@@ -9,7 +9,7 @@ output:
 ```{r, include=FALSE}
 library(quantmod); library(PerformanceAnalytics); library(rugarch); library(dplyr)
 library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca); library(timeDate); library(TSstudio); library(fBasics); library(randtests); library(vrtest); library(texreg); library(fGarch)
-library(xts);library(zoo); library(TTR);library(tidyverse);library(dplyr); library(stats); library(greybox); library(smooth);library(PerformanceAnalytics); library(rugarch)
+library(xts);library(zoo); library(TTR);library(tidyverse);library(dplyr); library(stats); library(greybox); library(smooth);library(PerformanceAnalytics); library(rugarch); library(tseries)
 
 extract.rugarch <- function(fit, indep, 
                             include.rsquared = TRUE, include.loglike = TRUE, include.aic = TRUE, include.bic = TRUE) {
@@ -72,24 +72,24 @@ jp_r<-na.omit(jp_r)
 jp_r<-xts(jp_r[,1], order.by = jp_r$fecha)
 ```
 
-Supongan que ustedes son analistas del mercado financiero en una entidad privada que invierte en Bolsa. Con el fin de guiar su política de inversión, la mesa de dinero requiere un análisis del comportamiento de la tasa de cambio del dólar americano USD frente a un conjunto de monedas del mundo: euro, yen japones, libra esterlina, dólar canadiense, dólar australiano, franco suizo, peso mexicano, peso colombiano y real brasileño (disponibles en https://finance.yahoo.com/). En consecuencia, le piden que realice un análisis incluyendo datos diarios desde enero de 2005 y hasta agosto del 2021 el cual debe dar cuenta de:
+Supongan que ustedes son analistas del mercado financiero en una entidad privada que invierte en Bolsa. Con el fin de guiar su política de inversión, la mesa de dinero requiere un análisis del comportamiento de la tasa de cambio del dólar americano USD frente al yen japones. En consecuencia, le piden que realice un análisis incluyendo datos diarios desde enero de 2005 y hasta agosto del 2021 el cual debe dar cuenta de:
 
   a. Estadística descriptiva (Además de otros análisis calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa.)
   
 Se presenta la gráfica de la tasa de cambio del dolar americado \textbf{USD} frente al Yen japones \textbf{JPY}
 
-```{r echo=FALSE ,message=FALSE ,fig.height = 3, fig.width = 5, fig.align = "center", fig.pos='h'}
+```{r echo=FALSE ,message=FALSE ,fig.height = 2, fig.width = 5, fig.align = "center", fig.pos='h'}
 knitr::opts_chunk$set(fig.width=4) 
 ggplot(data = jp, aes(y = jp, x = index(jp))) + geom_line()+
   ggtitle("Tasa de cambio USD/JPY")+ 
   labs(x = "Fecha",y = "USD/JPY") +
   theme_minimal()
 ```
-La serie de la tasa de cambio no presenta una tendencia clara, sin embargo, no es estacionaria
-```{r echo=FALSE, fig.height = 5, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
+La serie de la tasa de cambio no presenta una tendencia clara, sin embargo, presenta alta persistencia en el tiempo por tanto no es estacionaria
+```{r echo=FALSE, fig.height = 2, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 grid.arrange(
-ggAcf(jp,52)+ggtitle("USD/JPY")+labs(x="")+theme_minimal(),
-ggPacf(jp,52)+ggtitle("")+theme_minimal()
+ggAcf(jp,52)+ggtitle("USD/JPY")+labs(x="")+theme_minimal()+theme_minimal()
+#,ggPacf(jp,52)+ggtitle("")
 )
 ```
 Se observa que los retornos fluctuan al rededor de cero, son volátiles y presentan clusters de volatilidad, lo que concuerda con el comportamiento esperado de los retornos de las series finacieras.Además, los datos están altamente concentrados al rededor de su valor medio y se encuentra una mayor probabilidad de datos atípicos (representados en las colas), lo que hace que la distribución de los retornos sea leptocúrtica y tenga colas pesadas.
@@ -104,7 +104,30 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r[,1])) +
   geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') +theme_minimal()
 )
 ```
-En cuanto a la volatilidad de los retornos se observan picos tras la crisis financiera del 2008 
+Con el gráfico de autocorrelación simple no se puede determinar si los retornos son estacionarios pues presenta rezagos significativos, sin embargo, al realizar la prueba DF se determina que la serie es estacionaria 
+```{r echo=FALSE, fig.align="center", fig.height=5, fig.pos='h', fig.width=5, message=FALSE, warning=FALSE}
+grid.arrange(
+ggAcf(jp_r,52)+ggtitle("Retornos diarios")+labs(x="")+theme_minimal()+theme_minimal()
+#,ggPacf(jp_r,52)+ggtitle("")
+)
+
+adf.test(jp_r)
+
+
+#No necesidad de modelar la media del proceso.
+```
+El valor de la desviación estándar es más alto al de la media, por lo que la volatidad domina la dinámica de los retornos y la distribución es negativamente asimétrica.
+```{r echo=FALSE, caption='Estadística descriptiva.', warning = FALSE,fig.pos='h',message=FALSE}
+stats_d<-basicStats(jp_r[,1])[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
+
+#En tabla: 
+stats<-data.frame(stats_d)
+row.names(stats)<-c("Mean", "SD", "Minimum", "Maximum", "Variance","Skewness","Kurtosis")
+colnames(stats)<-c('USD/JPY')
+knitr::kable(stats)
+```
+
+Los retornos al cuadrado como proxy de la volatilidad, se observan picos tras la crisis financiera del 2008 
 ```{r echo=FALSE, fig.height = 4, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 #retornos ^2 distribucion y grafico
 grid.arrange(
@@ -119,16 +142,7 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r^2)) +
   geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') + theme_minimal()
 )
 ```
-Finalmente, el valor de la desviación estándar es más alto al de la media, por lo que la volatidad domina el comportamiento de los retornos 
-```{r echo=FALSE, caption='Estadística descriptiva.', warning = FALSE,fig.pos='h',message=FALSE}
-stats_d<-basicStats(jp_r[,1])[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
 
-#En tabla:
-stats<-data.frame(stats_d)
-row.names(stats)<-c("Mean", "SD", "Minimum", "Maximum", "Variance","Skewness","Kurtosis")
-colnames(stats)<-c('USD/JPY')
-knitr::kable(stats)
-```
 
 ```{r echo=FALSE}
 #calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa 
@@ -185,13 +199,7 @@ lines(EMA(jp_r, n = 100), col = "firebrick")
 
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
   
-```{r echo=FALSE, fig.align="center", fig.height=5, fig.pos='h', fig.width=5, message=FALSE, warning=FALSE}
-grid.arrange(
-ggAcf(jp_r,52)+ggtitle("Retornos diarios")+labs(x="")+theme_minimal(),
-ggPacf(jp_r,52)+ggtitle("")+theme_minimal()
-)
-#No necesidad de modelar la media del proceso.
-```
+
 
 ```{r echo=FALSE, fig.height = 5, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 grid.arrange(
