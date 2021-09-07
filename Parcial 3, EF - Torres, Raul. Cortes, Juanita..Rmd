@@ -2,13 +2,13 @@
 title: "Parcial 3 - Econometría Financiera"
 subtitle: "Raúl Esteban Torres Jiménez & Juanita Cortés Arroyo"
 output: 
-  pdf_document:
+  pdf_document: 
     latex_engine: xelatex
 ---
 
 ```{r, include=FALSE}
 library(quantmod); library(PerformanceAnalytics); library(rugarch); library(dplyr)
-library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca); library(timeDate); library(TSstudio); library(fBasics); library(randtests); library(vrtest); library(texreg)
+library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca); library(timeDate); library(TSstudio); library(fBasics); library(randtests); library(vrtest); library(texreg); library(fGarch)
 library(xts);library(zoo); library(TTR);library(tidyverse);library(dplyr); library(stats); library(greybox); library(smooth);library(PerformanceAnalytics); library(rugarch)
 
 extract.rugarch <- function(fit, indep, 
@@ -213,7 +213,7 @@ texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), dig
 ```{r, echo=FALSE,fig.pos='h'}
 knitr::kable(signbias(garch11.fit)[,c(2,3)])
 ```
-```{r, echo=FALSE}
+```{r, echo=FALSE,fig.pos='h'}
 nybtab11<-nyblom(garch11.fit)$IndividualStat
 colnames(nybtab11)<-c("p-value")
 knitr::kable(nybtab11)
@@ -231,6 +231,112 @@ alpha es sesnibilidad a la llegada de información y beta es persistencia de la 
 Nyblom: hay cambio estructural en mu, alpha y beta. No en omega.
 Leverage: no hay conjunto, hay sesgo solamente negativo.
 Comparar por bondad de ajuste y criterios de información.
+
+```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
+garch11.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
+                          mean.model = list(armaOrder=c(0,0)))
+garch11.fit = ugarchfit(spec=garch11.spec, data=jp_r)
+
+texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)") #for latex # as R^2 is zero in this example.
+```
+
+```{r}
+#plot(garch11.fit, which="all")
+resid<-residuals(garch11.fit, standardize=T)
+normaldens<-data.frame(predicted = resid, density = dnorm(resid, mean(resid), sd(resid)))
+
+grid.arrange(
+ggplot(data= as.data.frame(resid), aes(y =as.data.frame(resid)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GARCH(1,1)")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggAcf(resid,52)+ggtitle("")+labs(x="")+theme_minimal(),
+ggplot(data = as.data.frame(resid), aes(y=..density.., x = jp_r[,1])) +
+  geom_histogram(bins = 200) +
+  ggtitle("") +
+  geom_vline(aes(xintercept=mean(resid)), linetype="dashed") +
+  geom_density(alpha=.2, fill="steelblue") + labs(x='',y='') +
+  geom_line(aes(y = density), data = normaldens, colour = "firebrick") + theme_minimal(),
+ggPacf(resid,52)+ggtitle("")+theme_minimal()
+)
+```
+
+```{r}
+		ni = newsimpact(z = NULL, garch11.fit)
+		ni.y = ni$zy
+		ni.x = ni$zx
+		xf = ni$xexpr
+		yf  = ni$yexpr
+		ggplot(data = data.frame(ni.y,ni.x), aes(x=ni.x,y=ni.y))+
+		  geom_line(colour="steelblue") + xlab(xf) + ylab(yf) + theme_minimal()
+#		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
+```
+
+```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
+garch11sstd.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
+                          mean.model = list(armaOrder=c(0,0)),
+                          distribution.model = "sstd")
+garch11sstd.fit = ugarchfit(spec=garch11sstd.spec, data=jp_r)
+
+texreg(extract.rugarch(garch11sstd.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
+```
+
+```{r echo=FALSE}
+#plot(garch11sstd.fit, which="all")
+resid<-residuals(garch11sstd.fit, standardize=T)
+sstddens<-data.frame(predicted = resid, density = dsstd(resid, mean(resid), sd(resid), xi = garch11sstd.fit@fit[["coef"]][["skew"]]))
+
+grid.arrange(
+ggplot(data= as.data.frame(resid), aes(y =as.data.frame(resid)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggAcf(resid,52)+ggtitle("")+labs(x="")+theme_minimal(),
+ggplot(data = as.data.frame(resid), aes(y=..density.., x = jp_r[,1])) +
+  geom_histogram(bins = 200) +
+  ggtitle("") +
+  geom_vline(aes(xintercept=mean(resid)), linetype="dashed") +
+  geom_density(alpha=.2, fill="steelblue") + labs(x='',y='') +
+  geom_line(aes(y = density), data = sstddens, colour = "firebrick") + theme_minimal(),
+ggPacf(resid,52)+ggtitle("")+theme_minimal()
+)
+```
+
+```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
+gjrgarch11.spec = ugarchspec(variance.model = list(model="gjrGARCH", garchOrder=c(1,1)),
+                          mean.model = list(armaOrder=c(0,0)),
+                          distribution.model = "sstd")
+gjrgarch11.fit = ugarchfit(spec=gjrgarch11.spec, data=jp_r)
+
+texreg(extract.rugarch(gjrgarch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "gamma", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "GJR-GARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
+```
+
+```{r}
+resid<-residuals(gjrgarch11.fit, standardize=T)
+sstddens<-data.frame(predicted = resid, density = dsstd(resid, mean(resid), sd(resid), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
+
+params<-as.list(c(mean(resid), sd(resid), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
+
+grid.arrange(
+ggplot(data= as.data.frame(resid), aes(y =as.data.frame(resid)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GJR-GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggAcf(resid,52)+ggtitle("")+labs(x="")+theme_minimal(),
+ggplot(data = as.data.frame(resid), aes(y=..density.., x = jp_r[,1])) +
+  geom_histogram(bins = 200) +
+  ggtitle("") +
+  geom_vline(aes(xintercept=mean(resid)), linetype="dashed") +
+  geom_density(alpha=.2, fill="steelblue") + labs(x='',y='') +
+  geom_line(aes(y = density), data = sstddens, colour = "firebrick") + theme_minimal(),
+ggplot(data= as.data.frame(residuals(gjrgarch11.fit, standardize=T)), aes(sample = as.data.frame(resid)[,1])) +
+stat_qq(distribution = qsstd, dparams = params) + stat_qq_line(distribution = qsstd, dparams = params, colour="firebrick") + labs(x="",y="") + theme_minimal()
+)
+```
+
+```{r}
+ni_r = newsimpact(z = NULL, gjrgarch11.fit)
+		ni.y_r = ni_r$zy
+		ni.x_r = ni_r$zx
+		xf = ni_r$xexpr
+		yf  = ni_r$yexpr
+		ggplot(data = data.frame(ni.y_r,ni.x_r), aes(x=ni.x_r,y=ni.y_r))+
+		  geom_line(aes(x=ni.x,y=ni.y), colour="steelblue") +
+		  geom_line(colour="firebrick") + xlab(xf) + ylab(yf) + theme_minimal()
+#		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
+```
+
 
   d. Pronóstico de la volatilidad a 10 días.
 
