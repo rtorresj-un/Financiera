@@ -242,20 +242,23 @@ texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), dig
 
 ```{r}
 #plot(garch11.fit, which="all")
-resid<-residuals(garch11.fit, standardize=T)
-normaldens<-data.frame(predicted = resid, density = dnorm(resid, mean(resid), sd(resid)))
+resid1<-residuals(garch11.fit)
+med<-mean(resid1)
+normaldens<-data.frame(predicted = resid1, density = dnorm(resid1, mean(resid1), sd(resid1)))
+resid1<-residuals(garch11.fit, standardize=T)
 
 grid.arrange(
-ggplot(data= as.data.frame(resid), aes(y =as.data.frame(resid)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GARCH(1,1)")+ labs(x = "Fecha",y = "") + theme_minimal(),
-ggAcf(resid,52)+ggtitle("")+labs(x="")+theme_minimal(),
-ggplot(data = as.data.frame(resid), aes(y=..density.., x = jp_r[,1])) +
+ggplot(data= as.data.frame(resid1), aes(y =as.data.frame(resid1)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GARCH(1,1)")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggAcf(resid1,52)+ggtitle("")+labs(x="")+theme_minimal(),
+ggplot(data = as.data.frame(resid1), aes(y=..density.., x = jp_r[,1])) +
   geom_histogram(bins = 200) +
   ggtitle("") +
-  geom_vline(aes(xintercept=mean(resid)), linetype="dashed") +
+  geom_vline(aes(xintercept=med), linetype="dashed") +
   geom_density(alpha=.2, fill="steelblue") + labs(x='',y='') +
   geom_line(aes(y = density), data = normaldens, colour = "firebrick") + theme_minimal(),
-ggPacf(resid,52)+ggtitle("")+theme_minimal()
+ggPacf(resid1,52)+ggtitle("")+theme_minimal()
 )
+
 ```
 
 ```{r}
@@ -280,19 +283,21 @@ texreg(extract.rugarch(garch11sstd.fit, indep = jp_r, include.rsquared = FALSE),
 
 ```{r echo=FALSE}
 #plot(garch11sstd.fit, which="all")
-resid<-residuals(garch11sstd.fit, standardize=T)
-sstddens<-data.frame(predicted = resid, density = dsstd(resid, mean(resid), sd(resid), xi = garch11sstd.fit@fit[["coef"]][["skew"]]))
+resid2<-residuals(garch11sstd.fit)
+med<-mean(resid2)
+sstddens1<-data.frame(predicted = resid2, density = dsstd(resid2, mean(resid2), sd(resid2), xi = garch11sstd.fit@fit[["coef"]][["skew"]]))
+resid2<-residuals(garch11sstd.fit, standardize=T)
 
 grid.arrange(
-ggplot(data= as.data.frame(resid), aes(y =as.data.frame(resid)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
-ggAcf(resid,52)+ggtitle("")+labs(x="")+theme_minimal(),
-ggplot(data = as.data.frame(resid), aes(y=..density.., x = jp_r[,1])) +
+ggplot(data= as.data.frame(resid2), aes(y =as.data.frame(resid2)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggAcf(resid2,52)+ggtitle("")+labs(x="")+theme_minimal(),
+ggplot(data = as.data.frame(resid2), aes(y=..density.., x = jp_r[,1])) +
   geom_histogram(bins = 200) +
   ggtitle("") +
-  geom_vline(aes(xintercept=mean(resid)), linetype="dashed") +
+  geom_vline(aes(xintercept=med), linetype="dashed") +
   geom_density(alpha=.2, fill="steelblue") + labs(x='',y='') +
-  geom_line(aes(y = density), data = sstddens, colour = "firebrick") + theme_minimal(),
-ggPacf(resid,52)+ggtitle("")+theme_minimal()
+  geom_line(aes(y = density), data = sstddens1, colour = "firebrick") + theme_minimal(),
+ggPacf(resid2,52)+ggtitle("")+theme_minimal()
 )
 ```
 
@@ -306,21 +311,23 @@ texreg(extract.rugarch(gjrgarch11.fit, indep = jp_r, include.rsquared = FALSE), 
 ```
 
 ```{r}
-resid<-residuals(gjrgarch11.fit, standardize=T)
-sstddens<-data.frame(predicted = resid, density = dsstd(resid, mean(resid), sd(resid), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
+resid3<-residuals(gjrgarch11.fit)
+med<-mean(resid3)
+sstddens2<-data.frame(predicted = resid3, density = dsstd(resid3, mean(resid3), sd(resid3), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
+resid3<-residuals(gjrgarch11.fit, standardize=T)
 
-params<-as.list(c(mean(resid), sd(resid), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
+params<-as.list(c(mean(resid3), sd(resid3), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
 
 grid.arrange(
-ggplot(data= as.data.frame(resid), aes(y =as.data.frame(resid)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GJR-GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
-ggAcf(resid,52)+ggtitle("")+labs(x="")+theme_minimal(),
-ggplot(data = as.data.frame(resid), aes(y=..density.., x = jp_r[,1])) +
+ggplot(data= as.data.frame(resid3), aes(y =as.data.frame(resid3)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GJR-GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggAcf(resid3,52)+ggtitle("")+labs(x="")+theme_minimal(),
+ggplot(data = as.data.frame(resid3), aes(y=..density.., x = jp_r[,1])) +
   geom_histogram(bins = 200) +
   ggtitle("") +
-  geom_vline(aes(xintercept=mean(resid)), linetype="dashed") +
+  geom_vline(aes(xintercept=med), linetype="dashed") +
   geom_density(alpha=.2, fill="steelblue") + labs(x='',y='') +
-  geom_line(aes(y = density), data = sstddens, colour = "firebrick") + theme_minimal(),
-ggplot(data= as.data.frame(residuals(gjrgarch11.fit, standardize=T)), aes(sample = as.data.frame(resid)[,1])) +
+  geom_line(aes(y = density), data = sstddens2, colour = "firebrick") + theme_minimal(),
+ggplot(data= as.data.frame(resid3), aes(sample = as.data.frame(resid3)[,1])) +
 stat_qq(distribution = qsstd, dparams = params) + stat_qq_line(distribution = qsstd, dparams = params, colour="firebrick") + labs(x="",y="") + theme_minimal()
 )
 ```
@@ -331,9 +338,10 @@ ni_r = newsimpact(z = NULL, gjrgarch11.fit)
 		ni.x_r = ni_r$zx
 		xf = ni_r$xexpr
 		yf  = ni_r$yexpr
-		ggplot(data = data.frame(ni.y_r,ni.x_r), aes(x=ni.x_r,y=ni.y_r))+
-		  geom_line(aes(x=ni.x,y=ni.y), colour="steelblue") +
-		  geom_line(colour="firebrick") + xlab(xf) + ylab(yf) + theme_minimal()
+		ggplot(data = data.frame(ni.y_r,ni.x_r, ni.x, ni.y))+
+		  geom_line(aes(x=ni.x,y=ni.y, colour="GARCH(1,1)"), color="steelblue") +
+		  geom_line(aes(x=ni.x_r,y=ni.y_r, colour="GJR-GARCH(1,1)"), color="firebrick") + 
+		  xlab(xf) + ylab(yf) + theme_minimal()
 #		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
 ```
 
