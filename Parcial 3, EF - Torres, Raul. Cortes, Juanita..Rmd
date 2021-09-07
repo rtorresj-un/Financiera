@@ -9,7 +9,7 @@ output:
 ```{r, include=FALSE}
 library(quantmod); library(PerformanceAnalytics); library(rugarch); library(dplyr)
 library(ggplot2); library(ggfortify); library(quantmod); library(gridExtra); library(forecast); library(cowplot); library(urca); library(timeDate); library(TSstudio); library(fBasics); library(randtests); library(vrtest); library(texreg); library(fGarch); library(urca)
-library(xts);library(zoo); library(TTR);library(tidyverse);library(dplyr); library(stats); library(greybox); library(smooth);library(PerformanceAnalytics); library(rugarch); library(tseries)
+library(xts);library(zoo); library(TTR);library(tidyverse);library(dplyr); library(stats); library(greybox); library(smooth);library(PerformanceAnalytics); library(rugarch); library(tseries); library(stargazer)
 
 extract.rugarch <- function(fit, indep, 
                             include.rsquared = TRUE, include.loglike = TRUE, include.aic = TRUE, include.bic = TRUE) {
@@ -74,19 +74,22 @@ jp_r08<-window(jp_r, start='2008-01-21', end='2009-12-31')
 jp_r20<-window(jp_r, start='2020-01-01', end=Sys.Date())
 ```
 
-Supongan que ustedes son analistas del mercado financiero en una entidad privada que invierte en Bolsa. Con el fin de guiar su política de inversión, la mesa de dinero requiere un análisis del comportamiento de la tasa de cambio del dólar americano USD frente al yen japones. En consecuencia, le piden que realice un análisis incluyendo datos diarios desde enero de 2005 y hasta agosto del 2021 el cual debe dar cuenta de:
+Análisis del comportamiento de la tasa de cambio del dólar americano USD frente al yen japones (USD/JPY).   
 
   a. Estadística descriptiva (Además de otros análisis calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa.)
   
-Se presenta la gráfica de la tasa de cambio del dolar americado \textbf{USD} frente al Yen japones \textbf{JPY}
+Se presenta la gráfica de la tasa de cambio del dolar americado \textbf{USD} frente al Yen japones \textbf{JPY} con datos desde enero de 2005 hasta agosto del 2021.
 
-```{r echo=FALSE ,message=FALSE ,fig.height = 2, fig.width = 5, fig.align = "center", fig.pos='h'}
+```{r echo=FALSE ,message=FALSE ,fig.height = 2, fig.width = 7, fig.align = "center", fig.pos='h'}
 knitr::opts_chunk$set(fig.width=4) 
+grid.arrange(
 ggplot(data = jp, aes(y = jp, x = index(jp))) + geom_line()+
   ggtitle("Tasa de cambio USD/JPY")+ 
   labs(x = "Fecha",y = "USD/JPY") +
-  theme_minimal()
+  theme_minimal(), ncol=2,
+  ggAcf(jp,52)+ggtitle("USD/JPY")+labs(x="")+theme_minimal())
 ```
+
 La serie de la tasa de cambio no presenta una tendencia clara, sin embargo, presenta alta persistencia en el tiempo por tanto no es estacionaria
 ```{r echo=FALSE, fig.height = 2, fig.width = 5, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 grid.arrange(
@@ -98,7 +101,7 @@ Se observa que los retornos fluctuan al rededor de cero, son volátiles y presen
 ```{r echo=FALSE, fig.height = 4, fig.width = 5, fig.align = "center", message=FALSE,fig.pos='h'}
 # plot retornos diarios 
 grid.arrange(
-ggplot(data = jp_r, aes(y = jp_r[,1], x = index(jp_r))) + geom_line()+ggtitle("Retornos diarios USD/JPY")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggplot(data = jp_r, aes(y = jp_r[,1], x = index(jp_r))) + geom_line()+ggtitle("Retornos diarios USD/JPY")+ labs(x = "Fecha",y = "") + theme_minimal(),ncol=2,
 ggplot(data = jp_r, aes(y=..density.., x = jp_r[,1])) +
   geom_histogram(bins = 200) +
   ggtitle("Distrubución retornos diarios") +
@@ -106,18 +109,20 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r[,1])) +
   geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') +theme_minimal()
 )
 ```
-Con el gráfico de autocorrelación simple no se puede determinar si los retornos son estacionarios pues presenta rezagos significativos, sin embargo, al realizar la prueba DF se determina que la serie es estacionaria 
-```{r echo=FALSE, fig.align="center", fig.height=5, fig.pos='h', fig.width=5, message=FALSE, warning=FALSE}
-grid.arrange(
-ggAcf(jp_r,52)+ggtitle("Retornos diarios")+labs(x="")+theme_minimal(),
-ggAcf(jp_r^2,52)+ggtitle("Volatilidad retornos diarios")+labs(x="")+theme_minimal(),
-ggPacf(jp_r,52)+ggtitle("")+theme_minimal(),
-ggPacf(jp_r^2,52)+ggtitle("")+theme_minimal()
-)
-#Necesidad de modelar la media y la varianza.
+
+```{r echo=FALSE, caption='Estadística descriptiva.', warning = FALSE,fig.pos='h',message=FALSE}
+stats_d<-basicStats(jp_r[,1])[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
+
+#En tabla: 
+stats<-data.frame(stats_d)
+row.names(stats)<-c("Media", "SD", "Mínimo", "Máximo", "Varianza","Asimetría","Curtosis")
+colnames(stats)<-c('USD/JPY')
+knitr::kable(stats)
 ```
 
-```{r, echo=FALSE}
+El valor de la desviación estándar es más alto al de la media, por lo que la volatidad domina la dinámica de los retornos y la distribución es negativamente asimétrica. Así mismo, se observa que los retornos fluctuan alrededor de cero, son volátiles y presentan clusters de volatilidad. Además, los datos están altamente concentrados en su valor medio y se encuentra una mayor probabilidad de datos atípicos, lo que hace que la distribución de los retornos sea leptocúrtica y tenga colas pesadas, de este modo podemos concluir que la tasa de cambio sigue el comportamiento típico de los retornos de las series financieras.
+
+```{r, echo=FALSE,fig.pos='h'}
 test_ur<-NULL
 test_ur[1]<-list(ur.df(jp_r, type="drift", selectlags = "AIC")@teststat)
 test_ur[2]<-list(ur.df(jp_r^2, type="drift", selectlags = "AIC")@teststat)
@@ -134,33 +139,20 @@ knitr::kable(cval_ur)
 #Necesidad de modelar la media del proceso.
 ```
 
-El valor de la desviación estándar es más alto al de la media, por lo que la volatidad domina la dinámica de los retornos y la distribución es negativamente asimétrica.
-
-```{r echo=FALSE, caption='Estadística descriptiva.', warning = FALSE,fig.pos='h',message=FALSE}
-stats_d<-basicStats(jp_r[,1])[c("Mean", "Stdev", "Minimum", "Maximum", "Variance","Skewness","Kurtosis"),]
-
-#En tabla: 
-stats<-data.frame(stats_d)
-row.names(stats)<-c("Mean", "SD", "Minimum", "Maximum", "Variance","Skewness","Kurtosis")
-colnames(stats)<-c('USD/JPY')
-knitr::kable(stats)
-```
-
-Los retornos al cuadrado como proxy de la volatilidad, se observan picos tras la crisis financiera del 2008 
-```{r echo=FALSE, fig.height = 2, fig.width = 4, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
-#retornos ^2 distribucion y grafico
+```{r echo=FALSE, fig.align="center", fig.height=3, fig.pos='h', fig.width=7, message=FALSE, warning=FALSE}
 grid.arrange(
-ggplot(data = jp_r, aes(y = jp_r^2, x = index(jp_r))) + 
-  geom_line() +
-  ggtitle("Volatilidad retornos USD/JPY") + 
-  labs(x = "Fecha",y = "") + theme_minimal()
-#,#ggplot(data = jp_r, aes(y=..density.., x = jp_r^2)) +
-  #geom_histogram(bins = 200) +
-  #ggtitle("Distrubución volatilidad retornos diarios") +
-  #geom_vline(aes(xintercept=mean(jp_r)), linetype="dashed") +
-  #geom_density(alpha=.2, fill="lightblue") + labs(x='',y='') + theme_minimal()
+ggAcf(jp_r,52)+ggtitle("Retornos diarios")+labs(x="")+theme_minimal(),
+ggAcf(jp_r^2,52)+ggtitle("Volatilidad retornos diarios")+labs(x="")+theme_minimal(),
+ggPacf(jp_r,52)+ggtitle("")+theme_minimal(),
+ggPacf(jp_r^2,52)+ggtitle("")+theme_minimal()
+
 )
+#Necesidad de modelar la media y la varianza.
 ```
+
+En cuanto a la estacionariedad, bajo la prueba de DF se concluye que la serie de los retornos es estacionaria y no presenta deriva. 
+Con respecto a la autocorrelación simple y parcial de los $retornos$, no se observa un proceso altamente persistente en el tiempo lo que concuerda con la prueba de DF, sin embargo, no se puede determinar a simple vista el proceso generador de los retornos dado el comportamiento irregular de las funciones. 
+En cuanto a la autocorrelación de los $retornos^2$ se observa una estructura de autocorrelación parcial, por lo que es necesario modelar este comportamiento. 
 
 ```{r echo=FALSE}
 #calcule la desviación estándar anualizada para los años de crisis (2008 y 2009), también la del año 2020 y comparela con la de la muestra completa 
@@ -168,7 +160,9 @@ ggplot(data = jp_r, aes(y = jp_r^2, x = index(jp_r))) +
 # series ret de los años y aplicar la funcion 
 ```
 
-```{r echo=FALSE, fig.height = 7, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
+Comparando la volatilidad anualizada para diferentes periodos de la muestra observamos lo siguiente:
+```{r echo=FALSE, fig.height = 6, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE, ref.label="1"}
+
 #chart.TimeSeries(jp)
 #rollapply(jp_r)
 par(mfrow=c(3,1))
@@ -181,31 +175,23 @@ apply.rolling(managers[,1,drop=FALSE], FUN="mean", width=36)
 #Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
 ```
 
+```{r echo=FALSE, caption='desviacion estandar', warning = FALSE,fig.pos='h',message=FALSE}
+
+tablasd<-merge.data.frame(c(table.AnnualizedReturns(jp_r, scale = 252)[-3,],
+table.AnnualizedReturns(jp_r08, scale = 252)[-3,],
+table.AnnualizedReturns(jp_r20)[-3,]),"")
+row.names(tablasd)<-c("Retorno anualizado","SD anualizado")
+colnames(tablasd)<- c("Total","2008-09","2020-21")
+tablasd[,4] <- NULL 
+tablass<-tablasd
+knitr::kable(tablass)
+```
+En los periodos de crisis se observa una escalada de la volatilidad que viene acompañada de más periodos de volatilidad, lo que puede ser visto como síntoma de clusterización. Particularmente, durante el periodo 2008-2009 los efectos de la crisis parecen ser mayores sobre los retornos que en el periodo 2020-2021 hecho que es consecuente con el efecto apalancamiento, donde a mayor volatilidad y riesgo asociado, se observaron mayores caídas en los precios y consecuentemente menores retornos. 
+A partir de la gráfica \ref{1} se requiere modelación del proceso de volatilidad dado que no es constante en el tiempo y se observa clusterización. 
+
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
-```{r echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center", fig.show='hide'}
-# media incondicional 
-#dataSMA.EMA=merge.xts('Retornos'=jp_r, 'Media móvil simple'= SMA(jp_r), 'Media móvil exponencial'= EMA(jp_r), fill = 'NA')
-#ggplot(data = dataSMA.EMA, aes(x = index(dataSMA.EMA))) + 
-#  geom_line(aes(y= Retornos, color='Retornos')) +
-#  geom_line(aes(y= SMA, color='SMA')) +
-#  geom_line(aes(y= EMA, color='EMA')) +
-#  labs(x = "Fecha",y = "", color = "") + theme_minimal()
-#chart.TimeSeries(dataSMA.EMA, lwd = 1, legend.loc = "topright", colorset = #c('grey',"darkgreen","firebrick"))
-#lines(SMA(Cl(na.omit(jp)), n = 200), col = "darkgreen")
-#lines(EMA(Cl(na.omit(jp)), n = 200), col = "firebrick")
-
-# media incondicional
-#plot(na.omit(jp), main= "Media movil y exponencial USD/JPY", type='l', legend=TRUE)
-#lines(SMA(Cl(na.omit(jp)), n = 22), col = "darkgreen")
-#Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
-```
-```{r echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
-#lines(EMA(Cl(na.omit(jp)), n = 22), col = "firebrick")
-#legend("topright", legend = c("Retornos", "SMA", "EMA"), col = c("black", "darkgreen", "firebrick"), lwd = 2, text.font = i)
-```
-
-```{r echo= FALSE, fig.height = 3, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',fig.show= 'hide'}
-# medias moviles retornos
+  Para verificar la necesidad de modelar la media condicional en primer lugar, se examinaron medidas de media incondicional para evaluar la existencia de desviaciones a la media de largo plazo.
+```{r echo= FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center", fig.show='hide'}
 plot(jp_r20, main= "Media movil y exponencial de retornos USD/JPY", type='l', lwd=1)
 lines(SMA(jp_r20, n = 22), col = "darkgreen", lwd=2)
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
@@ -214,8 +200,17 @@ lines(SMA(jp_r20, n = 22), col = "darkgreen", lwd=2)
 lines(EMA(jp_r20, n = 22), col = "firebrick", lwd=2)
 ```
 
-Es necesario modelar la media de los retornos de la tasa de cambio, debido a la presencia de fluctuaciones con respecto a la media de largo plazo (SMA en verde y EMA en rojo).
+Al observar distintas ventanas de tiempo, se determina que es necesario modelar la media de los retornos de la tasa de cambio, debido a la presencia de fluctuaciones con respecto a la media de largo plazo (SMA en verde y EMA en rojo).
 
+Por parsimonia y criterios de información se determian que el modelo a estimar es un $MA(1)$ 
+```{r echo=FALSE, fig.pos='h',`results = FALSE`}
+ma1<- arma(jp_r,c(0,1))
+
+fit2 <- stats::arima(jp_r, order = c(0,0,1))
+knitr:: kable(stargazer(fit2))
+
+```
+ 
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
 
 ```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
@@ -298,7 +293,7 @@ garch11sstd.fit = ugarchfit(spec=garch11sstd.spec, data=jp_r)
 texreg(extract.rugarch(garch11sstd.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE,message=FALSE, results = 'asis',fig.pos='h'}
 #plot(garch11sstd.fit, which="all")
 resid2<-residuals(garch11sstd.fit)
 med<-mean(resid2)
@@ -327,7 +322,7 @@ gjrgarch11.fit = ugarchfit(spec=gjrgarch11.spec, data=jp_r)
 texreg(extract.rugarch(gjrgarch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "gamma", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "GJR-GARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
 ```
 
-```{r}
+```{r,message=FALSE, results = 'asis',fig.pos='h'}
 resid3<-residuals(gjrgarch11.fit)
 med<-mean(resid3)
 sstddens2<-data.frame(predicted = resid3, density = dsstd(resid3, mean(resid3), sd(resid3), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
@@ -349,7 +344,7 @@ stat_qq(distribution = qsstd, dparams = params) + stat_qq_line(distribution = qs
 )
 ```
 
-```{r}
+```{r echo=FALSE, message=FALSE, results = 'asis',fig.pos='h'}
 ni_r = newsimpact(z = NULL, gjrgarch11.fit)
 		ni.y_r = ni_r$zy
 		ni.x_r = ni_r$zx
@@ -383,7 +378,7 @@ plot(garchvol)
 
   e. Cuál es la probabilidad de tener pérdidas con el 99% de confianza en un horizonte de día (use los resultados de su modelación para el cálculo).
   
-```{r echo= FALSE,message=FALSE}
+```{r echo= FALSE,message=FALSE} 
 # asuminedo distribucion normal
 mu_R<- mean(jp_r)
 sigma_R<- sd(jp_r)
