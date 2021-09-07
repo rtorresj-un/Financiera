@@ -170,7 +170,8 @@ table.AnnualizedReturns(jp_r20)[-3,]),"")
 row.names(tablasd)<-c("Retorno anualizado","SD anualizado")
 colnames(tablasd)<- c("Total","2008-09","2020-21")
 tablasd[,4] <- NULL 
-knitr::kable(tablasd)
+tablass<-tablasd
+knitr::kable(tablass)
 ```
 En los periodos de crisis se observa una escalada de la volatilidad que viene acompañada de más periodos de volatilidad, lo que puede ser visto como síntoma de clusterización. Particularmente, durante el periodo 2008-2009 los efectos de la crisis parecen ser mayores sobre los retornos que en el periodo 2020-2021 hecho que es consecuente con el efecto apalancamiento, donde a mayor volatilidad y riesgo asociado, se observaron mayores caídas en los precios y consecuentemente menores retornos. 
 A partir de la gráfica \ref{1} se requiere modelación del proceso de volatilidad dado que no es constante en el tiempo y se observa clusterización. 
@@ -189,11 +190,11 @@ lines(EMA(jp_r20, n = 22), col = "firebrick", lwd=2)
 Al observar distintas ventanas de tiempo, se determina que es necesario modelar la media de los retornos de la tasa de cambio, debido a la presencia de fluctuaciones con respecto a la media de largo plazo (SMA en verde y EMA en rojo).
 
 Por parsimonia y criterios de información se determian que el modelo a estimar es un $MA(1)$ 
-```{r echo=FALSE, fig.pos='h'}
+```{r echo=FALSE, fig.pos='h',`results = FALSE`}
 ma1<- arma(jp_r,c(0,1))
 
 fit2 <- stats::arima(jp_r, order = c(0,0,1))
-stargazer(fit2)
+knitr:: kable(stargazer(fit2))
 
 ```
  
@@ -285,7 +286,7 @@ garch11sstd.fit = ugarchfit(spec=garch11sstd.spec, data=jp_r)
 texreg(extract.rugarch(garch11sstd.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE,message=FALSE, results = 'asis',fig.pos='h'}
 #plot(garch11sstd.fit, which="all")
 resid2<-residuals(garch11sstd.fit)
 med<-mean(resid2)
@@ -314,7 +315,7 @@ gjrgarch11.fit = ugarchfit(spec=gjrgarch11.spec, data=jp_r)
 texreg(extract.rugarch(gjrgarch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "gamma", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "GJR-GARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
 ```
 
-```{r}
+```{r,message=FALSE, results = 'asis',fig.pos='h'}
 resid3<-residuals(gjrgarch11.fit)
 med<-mean(resid3)
 sstddens2<-data.frame(predicted = resid3, density = dsstd(resid3, mean(resid3), sd(resid3), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
@@ -336,7 +337,7 @@ stat_qq(distribution = qsstd, dparams = params) + stat_qq_line(distribution = qs
 )
 ```
 
-```{r}
+```{r echo=FALSE, message=FALSE, results = 'asis',fig.pos='h'}
 ni_r = newsimpact(z = NULL, gjrgarch11.fit)
 		ni.y_r = ni_r$zy
 		ni.x_r = ni_r$zx
