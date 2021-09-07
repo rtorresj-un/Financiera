@@ -149,7 +149,7 @@ En cuanto a la autocorrelación de los $retornos^2$ se observa una estructura de
 
 
 Comparando la volatilidad anualizada para diferentes periodos de la muestra observamos lo siguiente:
-```{r echo=FALSE, fig.height = 6, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE, ref.label="1"}
+```{r echo=FALSE, fig.height = 6, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 #chart.TimeSeries(jp)
 #rollapply(jp_r)
 par(mfrow=c(3,1))
@@ -171,10 +171,11 @@ tablass<-tablasd[,-4]
 knitr::kable(tablass)
 ```
 En los periodos de crisis se observa una escalada de la volatilidad que viene acompañada de más periodos de volatilidad, lo que puede ser visto como síntoma de clusterización. Particularmente, durante el periodo 2008-2009 los efectos de la crisis parecen ser mayores sobre los retornos que en el periodo 2020-2021 hecho que es consecuente con el efecto apalancamiento, donde a mayor volatilidad y riesgo asociado, se observaron mayores caídas en los precios y consecuentemente menores retornos. 
-A partir de la gráfica \ref{1} se requiere modelación del proceso de volatilidad dado que no es constante en el tiempo y se observa clusterización. 
+A partir de la gráfica anterior se requiere modelación del proceso de volatilidad dado que no es constante en el tiempo y se observa clusterización. 
 
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
-  Para verificar la necesidad de modelar la media condicional en primer lugar, se examinaron medidas de media incondicional para evaluar la existencia de desviaciones a la media de largo plazo.
+
+Para verificar la necesidad de modelar la media condicional en primer lugar, se examinaron medidas de media incondicional para evaluar la existencia de desviaciones a la media de largo plazo.
 ```{r echo= FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center", fig.show='hide'}
 plot(jp_r20, main= "Media movil y exponencial de retornos USD/JPY", type='l', lwd=1)
 lines(SMA(jp_r20, n = 22), col = "darkgreen", lwd=2)
@@ -186,34 +187,33 @@ lines(EMA(jp_r20, n = 22), col = "firebrick", lwd=2)
 ```
 Al observar distintas ventanas de tiempo, se determina que es necesario modelar la media de los retornos de la tasa de cambio, debido a la presencia de fluctuaciones con respecto a la media de largo plazo (SMA en verde y EMA en rojo).
 
-Por parsimonia y criterios de información se determian que el modelo a estimar es un $MA(1)$ 
-```{r echo=FALSE, fig.pos='h', warning=FALSE}
-ma1<- arma(jp_r,c(0,1))
-
-fit2 <- stats::arima(jp_r, order = c(0,0,1))
-#knitr:: kable(stargazer(fit2))
-
+Por parsimonia y criterios de información se determina que el modelo a estimar es un MA(1). 
+```{r echo=FALSE, fig.pos='h', warning=FALSE, results='asis'}
+fit <- stats::arima(jp_r, order = c(0,0,1))
+stargazer(fit$var.coef)
 ```
  
- 
- 
- 
+Estadísticamente, la media condicional es diferente de cero, a un nivel de confianza de 5%. Razón por la cual este ccomponente será incluido en la modelación de la volatilidad a continuación.
  
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
-  
+
+Especificamos en primer lugar un modelo GARCH(1,1), dados los resultados obtenidos en los pasos previos, en relación con la evidente estructura autorregresiva y de memoria frente a errores pasados que muestran las gráficas de ACF y FACP, así, resulta en el siguiente modelo, asumiendo normalidad en los retornos de la tasa de cambio:
 
 ```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
 garch11.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
-                          mean.model = list(armaOrder=c(0,0)))
+                          mean.model = list(armaOrder=c(0,1)))
 garch11.fit = ugarchfit(spec=garch11.spec, data=jp_r)
 
-texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta"), caption = "Resultados del modelo", custom.model.names = "sGARH(1,1)") #for latex # as R^2 is zero in this example.
+texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "MA(1)", "omega", "alpha", "beta"), caption = "Resultados del modelo", custom.model.names = "sGARH(1,1)") #for latex # as R^2 is zero in this example.
 
 ```
-
+Como resultado de la regresión, se observa $\alpha$ y $\beta$ significativos a niveles de confianza del 95%, estos parámetros dan cuenta  de la existencia de clustering y persistencia de la volatilidad pasada sobre las volatilidades futuras, respectivamente; así, con $\alpha$ que los retornos son impactados por la llegada de nueva información, y $\beta$ refleja que el proceso de volatilidad tiene una estructura de correlación bastante sensible al pasado.
+$\mu$ no es significativo, lo que indica que la media del proceso es estadísticamente cero. $\omega$ es la constante de la volatilidad, ie, la media de largo plazo de la volatilidad del proceso, sin embargo, este parámetro no es estadísticamente significativo.
+Por otra parte, $\alpha+\beta$ es inferior a 1 (0.997); lo que constituye evidencia para esteblecer que es un modelo estacionario.
 ```{r, echo=FALSE,fig.pos='h'}
 knitr::kable(signbias(garch11.fit)[,c(2,3)])
 ```
+Frente al efecto de apalancamiento, el test realizado nos permite establecer que a niveles de significancia de 5% hay sesgo solamente negativo para los retornos de la tasa de cambio.
 
 ```{r, echo=FALSE,fig.pos='h'}
 nybtab11<-nyblom(garch11.fit)$IndividualStat
@@ -225,24 +225,9 @@ colnames(nybtab11c)<-c("Valores críticos")
 knitr::kable(nybtab11c)
 ```
 
-Se observa alpha y beta significativos, dan cuenta  de clustering y persistencia.
-mu no es significativo, su media es cero.
-omega es la constante de la volatilidad, ie, media de largo plazo de la volatilidad del proceso. No significativa.
-alpha+beta es casi 1; es un modelo estacionario.
-alpha es sesnibilidad a la llegada de información y beta es persistencia de la volatilidad.
-Nyblom: hay cambio estructural en mu, alpha y beta. No en omega.
-Leverage: no hay conjunto, hay sesgo solamente negativo.
-Comparar por bondad de ajuste y criterios de información.
+Según el test de Nyblom que evalúa el cambio estructural en los parámetros del modelo, se tiene que tanto $\mu$, como $\alpha$ y $\beta$ pueden tener cambios estructurales, contrario a $\omega$. Esto concuerda con la estructura de los retornos que se mostraba en los primeros literales, la cual es diferente para los periodos de crisis y estabilidad.
 
-```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h'}
-garch11.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
-                          mean.model = list(armaOrder=c(0,0)))
-garch11.fit = ugarchfit(spec=garch11.spec, data=jp_r)
-
-texreg(extract.rugarch(garch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)") #for latex # as R^2 is zero in this example.
-```
-
-```{r echo=FALSE, results = 'asis',fig.pos='h',fig.align = "center"}
+```{r echo=FALSE, fig.align=, fig.height=7, fig.pos='h', fig.width=3}
 #plot(garch11.fit, which="all")
 resid1<-residuals(garch11.fit)
 med<-mean(resid1)
@@ -263,6 +248,42 @@ ggPacf(resid1,52)+ggtitle("")+theme_minimal()
 
 ```
 
+A pesar de que los residuos no exhiben autocorrelación y parecen ser ruido blanco, los supuestos sobre los que se montan son poco realistas, ya que la distribución normal no se ajusta a los errores obtenidos. Por lo tanto, es necesario incluir una distribución que se ajuste mejor a los retornos leptocúrticos, como la \textit{Skew Student-t Distribution} (sstd).
+
+Adicionalmente, buscamos capturar el efecto de la volatilidad condicional observada en las gráficas, así que se estimó un modelo GARCH-M(1,1).
+
+sin embargo, no presentaron mejores criterios de información que el modelo GJR-GARCH(1,1), con el que se estima el efecto de asimetrías en la información.
+
+```{r, echo=FALSE, results="asis"}
+gjrgarch11.spec = ugarchspec(variance.model = list(model="gjrGARCH", garchOrder=c(1,1)),
+                          mean.model = list(armaOrder=c(0,1)),
+                          distribution.model = "sstd")
+gjrgarch11.fit = ugarchfit(spec=gjrgarch11.spec, data=jp_r)
+
+garch11m = ugarchspec(variance.model = list(garchOrder=c(1,1)),
+                      mean.model = list(armaOrder=c(0,1),
+                                        archm=TRUE,
+                                        archpow=2),
+                          distribution.model = "sstd")
+garch11m.fit = ugarchfit(spec=garch11m,data=jp_r)
+
+egarch11 <- ugarchspec(variance.model = list(model="eGARCH",
+                                                variance.targeting=F,
+                                                garchOrder=c(1,1)),
+                          mean.model = list(armaOrder=c(0,1)),
+                          distribution.model = "sstd")
+egarch11.fit = ugarchfit(spec=egarch11,data=jp_r)
+
+garm<-extract.rugarch(garch11m.fit, indep = jp_r, include.rsquared = FALSE)
+egar<-extract.rugarch(egarch11.fit, indep = jp_r, include.rsquared = FALSE)
+gjr<-extract.rugarch(gjrgarch11.fit, indep = jp_r, include.rsquared = FALSE)
+
+texreg(list(garm,gjr,egar), digits = 8, caption = "Resultados del modelo", custom.coef.names = c("mu", "MA(1)", "In-Mean", "omega", "alpha", "beta", "Asimetría", "Dist", "gamma"), custom.model.names = c("GARCH-M","GJR-GARCH","eGARCH"))
+
+```
+
+Si se comparan los modelos siguiendo tanto la bondad de ajuste, como los criterios de información, el desempeño del modelo eGARCH(1,1), con una sstd tiene los mejores resultados. Bajo este modelo podemos establecer que es significativa a niveles de confianza del 95% la persistencia de la volatilidad sobre la tasa de cambio ($\beta$), también, es significativo el efecto leverage de las malas noticias en $\alpha$ y $\gamma$, parámetros que determinan la dirección y la magnitud del impacto de la llegada de nueva información al mercado. Esto se observa en la gráfica \ref{nic}, en la que se demuestra la afectación que producen los choques sobre los retornos, y que no es capturada por el modelo GARCH estándar. En suma, se evidencia que la tasa de cambio USD/JPY tiene alta sensibilidad a las noticias negativas, como se ve en la gráfica anterior, donde se compara la curva de impacto de información de los modelos GARCH(1,1) en azul, y eGARCH(1,1), en rojo. Adicionalmente, haber implementado una disrtibución ajustada permitió que los errores fueran mejor comportados, ya que se acomodan de mejor manera a los datos observados, sin tener correlación serial y haber mejorado su distribución con respecto al primer modelo.
+
 ```{r echo=FALSE, results = 'asis',fig.pos='h',warning=FALSE}
 		ni = newsimpact(z = NULL, garch11.fit)
 		ni.y = ni$zy
@@ -273,55 +294,58 @@ ggPacf(resid1,52)+ggtitle("")+theme_minimal()
 	#	  geom_line(colour="steelblue") + xlab(xf) + ylab(yf) + theme_minimal()
 #		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
 ```
+```{r echo=FALSE, fig.height=2, fig.pos='h', fig.width=2, message=FALSE, ref.label="nic"}
+ni_r = newsimpact(z = NULL, egarch11.fit)
+		ni.y_r = ni_r$zy
+		ni.x_r = ni_r$zx
+		xf = ni_r$xexpr
+		yf  = ni_r$yexpr
+		ggplot(data = data.frame(ni.y_r,ni.x_r, ni.x, ni.y))+
+		  geom_line(aes(x=ni.x,y=ni.y, colour="GARCH(1,1)"), color="steelblue") +
+		  geom_line(aes(x=ni.x_r,y=ni.y_r, colour="eGARCH(1,1)"), color="firebrick") + 
+		  xlab(xf) + ylab(yf) + theme_minimal()
+#		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
+```
 
 ```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h',warning=FALSE}
-garch11sstd.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
-                          mean.model = list(armaOrder=c(0,0)),
-                          distribution.model = "sstd")
-garch11sstd.fit = ugarchfit(spec=garch11sstd.spec, data=jp_r)
-
-texreg(extract.rugarch(garch11sstd.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "sGARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
+#garch11sstd.spec = ugarchspec(variance.model = list(garchOrder=c(1,1)),
+#                          mean.model = list(armaOrder=c(0,0)),
+#                          distribution.model = "sstd")
+#garch11sstd.fit = ugarchfit(spec=garch11sstd.spec, data=jp_r)
+#
+#texreg(extract.rugarch(garch11sstd.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, #custom.coef.names = c("mu", "omega", "alpha", "beta", "skew", "shape"), caption = #"Resultados del modelo", custom.model.names = "sGARCH(1,1)~sstd") #for latex # as R^2 is #zero in this example.
 ```
 
 ```{r echo=FALSE,message=FALSE, results = 'asis',fig.pos='h',fig.align = "center",warning=FALSE}
 #plot(garch11sstd.fit, which="all")
-resid2<-residuals(garch11sstd.fit)
-med<-mean(resid2)
-sstddens1<-data.frame(predicted = resid2, density = dsstd(resid2, mean(resid2), sd(resid2), xi = garch11sstd.fit@fit[["coef"]][["skew"]]))
-resid2<-residuals(garch11sstd.fit, standardize=T)
-
-grid.arrange(
-ggplot(data= as.data.frame(resid2), aes(y =as.data.frame(resid2)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
-ggAcf(resid2,52)+ggtitle("")+labs(x="")+theme_minimal(),
-ggplot(data = as.data.frame(resid2), aes(y=..density.., x = jp_r[,1])) +
-  geom_histogram(bins = 200) +
-  ggtitle("") +
-  geom_vline(aes(xintercept=med), linetype="dashed") +
-  geom_density(alpha=.2, fill="steelblue") + labs(x='',y='') +
-  geom_line(aes(y = density), data = sstddens1, colour = "firebrick") + theme_minimal(),
-ggPacf(resid2,52)+ggtitle("")+theme_minimal()
-)
+#resid2<-residuals(garch11sstd.fit)
+#med<-mean(resid2)
+#sstddens1<-data.frame(predicted = resid2, density = dsstd(resid2, mean(resid2), sd(resid2), #xi = garch11sstd.fit@fit[["coef"]][["skew"]]))
+#resid2<-residuals(garch11sstd.fit, standardize=T)
+#
+#grid.arrange(
+#ggplot(data= as.data.frame(resid2), aes(y =as.data.frame(resid2)[,1], x = index(jp_r))) + #geom_line()+ggtitle("Residuos del modelo GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + #theme_minimal(),
+#ggAcf(resid2,52)+ggtitle("")+labs(x="")+theme_minimal(),
+#ggplot(data = as.data.frame(resid2), aes(y=..density.., x = jp_r[,1])) +
+#  geom_histogram(bins = 200) +
+#  ggtitle("") +
+#  geom_vline(aes(xintercept=med), linetype="dashed") +
+#  geom_density(alpha=.2, fill="steelblue") + labs(x='',y='') +
+#  geom_line(aes(y = density), data = sstddens1, colour = "firebrick") + theme_minimal(),
+#ggPacf(resid2,52)+ggtitle("")+theme_minimal()
+#)
 ```
 
-```{r echo=FALSE ,message=FALSE, results = 'asis',fig.pos='h',fig.align = "center"}
-gjrgarch11.spec = ugarchspec(variance.model = list(model="gjrGARCH", garchOrder=c(1,1)),
-                          mean.model = list(armaOrder=c(0,0)),
-                          distribution.model = "sstd")
-gjrgarch11.fit = ugarchfit(spec=gjrgarch11.spec, data=jp_r)
-
-texreg(extract.rugarch(gjrgarch11.fit, indep = jp_r, include.rsquared = FALSE), digits = 8, custom.coef.names = c("mu", "omega", "alpha", "beta", "gamma", "skew", "shape"), caption = "Resultados del modelo", custom.model.names = "GJR-GARCH(1,1)~sstd") #for latex # as R^2 is zero in this example.
-```
-
-```{r echo= FALSE,message=FALSE, results = 'asis',fig.pos='h', fig.align = "center"}
-resid3<-residuals(gjrgarch11.fit)
+```{r echo=FALSE, fig.align="center", fig.height=3, fig.pos='h', fig.width=7, message=FALSE}
+resid3<-residuals(egarch11.fit)
 med<-mean(resid3)
-sstddens2<-data.frame(predicted = resid3, density = dsstd(resid3, mean(resid3), sd(resid3), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
-resid3<-residuals(gjrgarch11.fit, standardize=T)
+sstddens2<-data.frame(predicted = resid3, density = dsstd(resid3, mean(resid3), sd(resid3), xi = egarch11.fit@fit[["coef"]][["skew"]]))
+resid3<-residuals(egarch11.fit, standardize=T)
 
-params<-as.list(c(mean(resid3), sd(resid3), xi = gjrgarch11.fit@fit[["coef"]][["skew"]]))
+params<-as.list(c(mean(resid3), sd(resid3), xi = egarch11.fit@fit[["coef"]][["skew"]]))
 
 grid.arrange(
-ggplot(data= as.data.frame(resid3), aes(y =as.data.frame(resid3)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo GJR-GARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
+ggplot(data= as.data.frame(resid3), aes(y =as.data.frame(resid3)[,1], x = index(jp_r))) + geom_line()+ggtitle("Residuos del modelo eGARCH(1,1)~sstd")+ labs(x = "Fecha",y = "") + theme_minimal(),
 ggAcf(resid3,52)+ggtitle("")+labs(x="")+theme_minimal(),
 ggplot(data = as.data.frame(resid3), aes(y=..density.., x = jp_r[,1])) +
   geom_histogram(bins = 200) +
@@ -334,20 +358,21 @@ stat_qq(distribution = qsstd, dparams = params) + stat_qq_line(distribution = qs
 )
 ```
 
-```{r echo=FALSE, message=FALSE, results = 'asis',fig.pos='h',fig.height = 3, fig.width = 3, fig.align = "center"}
-ni_r = newsimpact(z = NULL, gjrgarch11.fit)
-		ni.y_r = ni_r$zy
-		ni.x_r = ni_r$zx
-		xf = ni_r$xexpr
-		yf  = ni_r$yexpr
-		ggplot(data = data.frame(ni.y_r,ni.x_r, ni.x, ni.y))+
-		  geom_line(aes(x=ni.x,y=ni.y, colour="GARCH(1,1)"), color="steelblue") +
-		  geom_line(aes(x=ni.x_r,y=ni.y_r, colour="GJR-GARCH(1,1)"), color="firebrick") + 
-		  xlab(xf) + ylab(yf) + theme_minimal()
-#		plot( ni.x, ni.y, ylab = yf, xlab = xf, type = "l", lwd = 2, col = "steelblue", main = "News Impact Curve", cex.main = 0.8)
-```
-
   d. Pronóstico de la volatilidad a 10 días.
+
+```{r}
+#rollfore <- ugarchroll(ar1egarch11, ibm, n.start = 800, refit.every = 3,
+#                       refit.window = "moving", solver = "hybrid",
+#                       calculate.VaR = TRUE, VaR.alpha = c(0.01, 0.05),
+#                       keep.coef = TRUE)
+#show(rollfore)
+#genera pronóstico de sigma, retornos, distribución, y predice la distribución de los pronósticos.
+#report(rollfore, type="VaR", VaR.alpha = 0.01, conf.level = 0.95) #backtesting
+#preds <- as.data.frame(rollfore) # Yo safe data as a dataframe
+#head(preds)
+#garchvol <- xts(preds$Sigma, order.by = seq(as.Date("1992/9/1"), as.Date("1999/12/1"), by = #"month"))
+#plot(garchvol)
+```
 
   e. Cuál es la probabilidad de tener pérdidas con el 99% de confianza en un horizonte de día (use los resultados de su modelación para el cálculo).
   
