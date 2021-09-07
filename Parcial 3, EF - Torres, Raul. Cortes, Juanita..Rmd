@@ -105,10 +105,10 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r[,1])) +
 )
 ```
 Con el gráfico de autocorrelación simple no se puede determinar si los retornos son estacionarios pues presenta rezagos significativos, sin embargo, al realizar la prueba DF se determina que la serie es estacionaria 
-```{r echo=FALSE, fig.align="center", fig.height=5, fig.pos='h', fig.width=5, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.align="center", fig.height=3, fig.pos='h', fig.width=5, message=FALSE, warning=FALSE}
 grid.arrange(
 ggAcf(jp_r,52)+ggtitle("Retornos diarios")+labs(x="")+theme_minimal()+theme_minimal()
-#,ggPacf(jp_r,52)+ggtitle("")
+,ggPacf(jp_r,52)+ggtitle("")
 )
 
 adf.test(jp_r)
@@ -150,7 +150,7 @@ ggplot(data = jp_r, aes(y=..density.., x = jp_r^2)) +
 # series ret de los años y aplicar la funcion 
 ```
 
-```{r echo=FALSE, fig.height = 7, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
+```{r echo=FALSE, fig.height = 6, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',message=FALSE}
 #chart.TimeSeries(jp)
 jp_r08<-window(jp_r, start='2008-01-21', end='2009-12-31')
 jp_r20<-window(jp_r, start='2020-01-01', end=Sys.Date())
@@ -162,7 +162,16 @@ chart.RollingPerformance(jp_r, width = 22, FUN = "sd.annualized", scale = 252, m
 
 #Se observan clústeres de volatilidad, media que no es cero ni varianza constante => modelar volatilidad.
 ```
+```{r echo=FALSE, caption='desviacion estandar', warning = FALSE,fig.pos='h',message=FALSE}
 
+tablasd<-merge.data.frame(c(table.AnnualizedReturns(jp_r, scale = 252)[-3,],
+table.AnnualizedReturns(jp_r08, scale = 252)[-3,],
+table.AnnualizedReturns(jp_r20)[-3,]),"")
+row.names(tablasd)<-c("Retorno anualizado","SD anualizado")
+colnames(tablasd)<- c("Total","2008-09","2020-21")
+tablasd[,4] <- NULL 
+knitr::kable(tablasd)
+```
   b. Modelación de la media condicional. ¿Es la media condicional igual a cero?
 ```{r echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center", fig.show='hide'}
 # media incondicional 
@@ -190,13 +199,30 @@ lines(EMA(Cl(na.omit(jp)), n = 200), col = "firebrick")
 ```{r echo= FALSE, fig.height = 3, fig.width = 7, fig.align = "center", warning = FALSE,fig.pos='h',fig.show= 'hide'}
 # medias moviles retornos
 plot(jp_r, main= "Media movil y exponencial de retornos USD/JPY")
-lines(SMA(jp_r, n = 100), col = "darkgreen")
+lines(SMA(jp_r, n = 22), col = "darkgreen")
 #Observar si hay un proceso de autocorrelación, si la media es cero, la varianza constante, etc.
 ```
 ```{r echo=FALSE,fig.pos='h',fig.height = 3, fig.width = 7, fig.align = "center"}
-lines(EMA(jp_r, n = 100), col = "firebrick")
+lines(EMA(jp_r, n = 22), col = "firebrick")
 ```
 
+ 
+```{r echo=FALSE}
+arma11<-arma(jp_r,c(1,1))
+summary(arma11)
+
+ma1<- arma(jp_r,c(0,1))
+summary(ma1)
+
+
+
+
+```
+ 
+ 
+ 
+ 
+ 
   c. Modelación de la varianza condicional (verifique la existencia de efecto leverage o asimetrías comparando diferentes especificaciones usando criterios de información). ¿Cuál es el modelo que mejor se ajusta al proceso de volatilidad de la tasa de cambio?
   
 
@@ -367,6 +393,9 @@ W0*qnorm(0.01, mean= mu_R, sd<- sigma_R)
 ```
   
   f. ¿Cambió la pandemia del COVID-19 la estructura de la volatilidad de la tasa de cambio? (para eso use datos desde enero del 2018).
+```{r}
+jp_covid<-window(jp_r, start='2018-01-01', end=Sys.Date())
+```
   
 
 Nota: Se espera que cada grupo ELIJA UNA TASA DE CAMBIO DIFERENTE, y presente un informe ejecutivo de no más de 10 páginas, en el que de respuesta a cada pregunta y presente los argumentos empíricos necesarios que la sustenten. Explique sus resultados e interprételos.
